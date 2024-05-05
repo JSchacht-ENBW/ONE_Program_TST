@@ -15,23 +15,16 @@ $headers = @{
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    # Check for each necessary field and gather missing field names if any
-    $missingFields = @()
-    if (-not $workItem.fields.'System.Title') { $missingFields += "System.Title" }
-    if (-not $workItem.fields.'System.WorkItemType') { $missingFields += "System.WorkItemType" }
-    if (-not $workItem.fields.'System.State') { $missingFields += "System.State" }
-    if (-not $workItem.fields.'System.Description') { $missingFields += "System.Description" }
-
-    # If there are any missing fields, report them and exit the function
-    if ($missingFields.Count -gt 0) {
-        Write-Host "Necessary fields are missing from the work item: $($missingFields -join ', ')"
+    # Ensure necessary fields exist before proceeding
+    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
+        Write-Host "Necessary fields are missing from the work item."
         return $null
     }
 
     # Construct the URI for creating a new work item based on the type from the existing item
-    $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItemType}?api-version=6.0"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItem.fields['System.WorkItemType']}?api-version=6.0"
     
+
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
         @{
@@ -47,7 +40,7 @@ function Create-WorkItem($workItem) {
         @{
             "op" = "add"
             "path" = "/fields/System.WorkItemType"
-            "value" = $workItem.fields.'System.WorkItemType'  # Incorrectly set in the example, not usually set via PATCH
+            "value" = $workItem.fields.'System.WorkItemType'  # Set the description from the work item
         },
         @{
             "op" = "add"
