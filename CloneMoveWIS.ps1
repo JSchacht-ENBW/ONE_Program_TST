@@ -15,9 +15,16 @@ $headers = @{
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    # Ensure necessary fields exist before proceeding
-    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
-        Write-Host "Necessary fields are missing from the work item."
+    # Check for each necessary field and gather missing field names if any
+    $missingFields = @()
+    if (-not $workItem.fields.'System.Title') { $missingFields += "System.Title" }
+    if (-not $workItem.fields.'System.WorkItemType') { $missingFields += "System.WorkItemType" }
+    if (-not $workItem.fields.'System.State') { $missingFields += "System.State" }
+    if (-not $workItem.fields.'System.Description') { $missingFields += "System.Description" }
+
+    # If there are any missing fields, report them and exit the function
+    if ($missingFields.Count -gt 0) {
+        Write-Host "Necessary fields are missing from the work item: $($missingFields -join ', ')"
         return $null
     }
 
