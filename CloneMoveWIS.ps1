@@ -26,16 +26,8 @@ function Get-WorkItems {
 
     # Check if the response contains work items
     if ($response -and $response.workItems -and $response.workItems.Count -gt 0) {
-        # Collect all IDs from the response into an array
-        $idsArray = $response.workItems | ForEach-Object { $_.id }
-        
-        # Join all IDs with commas to form a single string
-        $ids = $idsArray -join ","
-        
-        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
-        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-        
-        return $workItems
+
+        return $response
     } else {
         Write-Host "No work items found."
         return $null
@@ -83,10 +75,9 @@ function Create-WorkItem($workItem) {
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
-    foreach ($wi in $workItems) {
-        $newWi = Create-WorkItem $wi
-        Write-Host "Created new work item with ID: $($newWi.id)"
-    }
+   
+        Write-Host "Created new work item with ID:$workItems"
+    
 } else {
     Write-Host "No work items to process."
 }
