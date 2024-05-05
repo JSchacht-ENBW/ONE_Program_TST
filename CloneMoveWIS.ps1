@@ -35,6 +35,11 @@ function Get-WorkItems {
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
+    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
+        Write-Host "Necessary fields are missing from the work item."
+        return $null
+    }
+
     $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItem.fields['System.WorkItemType']?api-version=6.0"
     
     $body = @(
@@ -48,16 +53,20 @@ function Create-WorkItem($workItem) {
             "path" = "/fields/System.Description"
             "value" = $workItem.fields['System.Description']
         }
-        # Add more fields as necessary
     )
 
-    $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body ($body | ConvertTo-Json)
+    $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body ($body | ConvertTo-Json -Compress)
     return $response
 }
 
+
 # Main script execution
 $workItems = Get-WorkItems
-foreach ($wi in $workItems) {
-    $newWi = Create-WorkItem $wi
-    Write-Host "Created new work item with ID: $($newWi.id)"
+if ($workItems) {
+    foreach ($wi in $workItems) {
+        $newWi = Create-WorkItem $wi
+        Write-Host "Created new work item with ID: $($newWi.id)"
+    }
+} else {
+    Write-Host "No work items to process."
 }
