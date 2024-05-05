@@ -13,6 +13,7 @@ $headers = @{
     "Content-Type" = "application/json"
 }
 
+
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
@@ -22,10 +23,7 @@ function Get-WorkItems {
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
     $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
 
-    # Print the entire response to see what we get from the API
-    Write-Host "Response: $($response | ConvertTo-Json -Compress)"
-
-    # Check if there are work items in the response and return them
+    # Check if there are work items in the response and retrieve them
     if ($response -and $response.workItems) {
         $ids = $response.workItems.id -join ","
         $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
@@ -33,10 +31,9 @@ function Get-WorkItems {
         return $workItems
     } else {
         Write-Host "No work items found."
-        return $null
+        return @()  # Return an empty array if no work items are found
     }
 }
-
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     # Ensure necessary fields exist before proceeding
@@ -69,15 +66,14 @@ function Create-WorkItem($workItem) {
     $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody
     return $response
 }
-
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
-    Write-Host "Returned work items: $($workItems | ConvertTo-Json -Compress)"
+    # Output the array of work items directly
+    return $workItems
 } else {
     Write-Host "No work items to process."
 }
-
 
 
 
