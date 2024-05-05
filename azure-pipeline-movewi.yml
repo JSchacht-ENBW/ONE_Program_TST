@@ -1,0 +1,21 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  - group: Security
+
+steps:
+- checkout: self
+  displayName: 'Checkout Code'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'filePath'
+    filePath: 'CloneMoveWIS.ps1'
+    arguments: '-Organization "enbw" -Project "ONE! Program_TST" -PAT "$(PAT PowerBi)"'
+    pwsh: true
+  displayName: 'Run Azure DevOps PowerShell Script'
+
