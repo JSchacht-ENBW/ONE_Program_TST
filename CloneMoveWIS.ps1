@@ -18,19 +18,22 @@ $headers = @{
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
-        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = 'ONE!\\xx_Sandkasten'"
     }
-    
+
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
-    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json)
-    
-    # Extract work item IDs
-    $ids = $response.workItems.id -join ","
-    
-    # Get detailed info for each work item
-    $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
-    $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-    return $workItems
+    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
+    Write-Host "Response: $($response | ConvertTo-Json -Compress)"
+
+    if ($response -and $response.workItems) {
+        $ids = $response.workItems.id -join ","
+        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
+        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
+        return $workItems
+    } else {
+        Write-Host "No work items found."
+        return $null
+    }
 }
 
 
