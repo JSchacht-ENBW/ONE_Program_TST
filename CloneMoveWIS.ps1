@@ -1,10 +1,8 @@
 # Set variables
 $sourceOrg = "enbw"
 $sourceProject = "ONE!"
-$sourceArea = "ONE!\\\\xx_Sandkasten"
-$targetOrg = "enbw"
-$targetProject = "ONE! Program_Dev"
-$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa" # Securely pass your PAT
+$sourceArea = "ONE!\\xx_Sandkasten"  # Use double backslash in PowerShell for correct escaping
+$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
 # Base URI for Azure DevOps REST API calls
 $baseUri = "https://dev.azure.com/$sourceOrg"
@@ -23,8 +21,11 @@ function Get-WorkItems {
 
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
     $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
+
+    # Print the entire response to see what we get from the API
     Write-Host "Response: $($response | ConvertTo-Json -Compress)"
 
+    # Check if there are work items in the response and return them
     if ($response -and $response.workItems) {
         $ids = $response.workItems.id -join ","
         $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
@@ -35,7 +36,6 @@ function Get-WorkItems {
         return $null
     }
 }
-
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
@@ -70,16 +70,17 @@ function Create-WorkItem($workItem) {
     return $response
 }
 
-
-
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
-    #foreach ($wi in $workItems) {
-    #    $newWi = Create-WorkItem $wi
-    #    Write-Host "Created new work item with ID: $($newWi.id)"
-    Write-Host "Returned work items with ID: $($workItems)"
-    }
+    Write-Host "Returned work items: $($workItems | ConvertTo-Json -Compress)"
 } else {
     Write-Host "No work items to process."
 }
+
+
+
+
+
+
+
