@@ -28,7 +28,7 @@ function Get-WorkItems {
     $ids = $response.workItems.id -join ","
     
     # Get detailed info for each work item
-    $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&$expand=all&api-version=6.0"
+    $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
     $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
     return $workItems
 }
