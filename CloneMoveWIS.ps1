@@ -69,8 +69,10 @@ function Create-WorkItem($workItem) {
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
-    # Output the array of work items directly
-    return $workItems
+    foreach ($wi in $workItems.value) {
+        # Print each work item's ID and Title
+        Write-Host "Work Item ID: $($wi.fields.'System.Id'), Title: $($wi.fields.'System.Title')"
+    }
 } else {
     Write-Host "No work items to process."
 }
