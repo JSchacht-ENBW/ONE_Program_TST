@@ -39,6 +39,11 @@ function Create-WorkItem($workItem) {
         },
         @{
             "op" = "add"
+            "path" = "/fields/System.WorkItemType"
+            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
+        }
+        @{
+            "op" = "add"
             "path" = "/fields/System.Description"
             "value" = $workItem.fields.'System.Description'  # Set the description from the work item
         }
@@ -56,7 +61,7 @@ function Create-WorkItem($workItem) {
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
-        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
     }
 
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
@@ -79,7 +84,7 @@ $workItems = Get-WorkItems
 if ($workItems) {
     foreach ($wi in $workItems.value) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
-        Write-Host "Work Item ID: $($wi.id), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
+        Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
          # Attempt to create a new work item in the target project using the existing work item's details
         $newWorkItemResponse = Create-WorkItem $wi
