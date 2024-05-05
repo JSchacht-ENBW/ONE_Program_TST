@@ -11,8 +11,8 @@ $baseUri = "https://dev.azure.com/$sourceOrg"
 
 # Headers for authentication
 $headers = @{
-    Authorization = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-    Content-Type = "application/json"
+    "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
+    "Content-Type" = "application/json"
 }
 
 # Function to get all work items from the source project and area
