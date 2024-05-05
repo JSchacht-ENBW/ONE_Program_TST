@@ -24,19 +24,24 @@ function Create-WorkItem($workItem) {
     # Construct the URI for creating a new work item based on the type from the existing item
     $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItem.fields['System.WorkItemType']}?api-version=6.0"
     
-    # Define the body as an array of hashtables, modifying title and description
+
+    # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
         @{
             "op" = "add"
             "path" = "/fields/System.Title"
-            "value" = "Cloned Title - originally from another project"
+            "value" = $workItem.fields.'System.Title'  # Set the title from the work item
+        },
+        @{
+            "op" = "add"
+            "path" = "/fields/System.State"
+            "value" = $workItem.fields.'System.State'  # Set the state from the work item
         },
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = "This is a cloned item from another project."
+            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
         }
-        # Additional fields can be added here as necessary
     )
 
     # Serialize the body using ConvertTo-Json with a depth to ensure all details are captured
