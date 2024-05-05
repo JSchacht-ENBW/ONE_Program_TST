@@ -75,9 +75,10 @@ function Create-WorkItem($workItem) {
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
-    foreach ($wi in $workItems) {
-        $newWi = Create-WorkItem $wi
-        Write-Host "Created new work item with ID: $($newWi.id)"
+    #foreach ($wi in $workItems) {
+    #    $newWi = Create-WorkItem $wi
+    #    Write-Host "Created new work item with ID: $($newWi.id)"
+    Write-Host "Returned work items with ID: $workItems"
     }
 } else {
     Write-Host "No work items to process."
