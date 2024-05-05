@@ -26,7 +26,11 @@ function Get-WorkItems {
 
     # Check if the response contains work items
     if ($response -and $response.workItems -and $response.workItems.Count -gt 0) {
-        $ids = $response.workItems | ForEach-Object -Process { $_.id } -join ","
+        # Collect all IDs from the response into an array
+        $idsArray = $response.workItems | ForEach-Object { $_.id }
+        
+        # Join all IDs with commas to form a single string
+        $ids = $idsArray -join ","
         
         $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
         $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
@@ -37,6 +41,7 @@ function Get-WorkItems {
         return $null
     }
 }
+
 
 
 
