@@ -79,7 +79,7 @@ $workItems = Get-WorkItems
 if ($workItems) {
     foreach ($wi in $workItems.value) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
-        Write-Host "Work Item ID: $($wi.id), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State), Description: $($wi.fields.'System.Description')"
+        Write-Host "Work Item ID: $($wi.id), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
          # Attempt to create a new work item in the target project using the existing work item's details
         $newWorkItemResponse = Create-WorkItem $wi
