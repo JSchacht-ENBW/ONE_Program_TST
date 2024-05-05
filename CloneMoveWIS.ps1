@@ -15,16 +15,23 @@ $headers = @{
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    # Ensure necessary fields exist before proceeding
-    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
-        Write-Host "Necessary fields are missing from the work item."
+    # Check for each necessary field and gather missing field names if any
+    $missingFields = @()
+    if (-not $workItem.fields.'System.Title') { $missingFields += "System.Title" }
+    if (-not $workItem.fields.'System.WorkItemType') { $missingFields += "System.WorkItemType" }
+    if (-not $workItem.fields.'System.State') { $missingFields += "System.State" }
+    if (-not $workItem.fields.'System.Description') { $missingFields += "System.Description" }
+
+    # If there are any missing fields, report them and exit the function
+    if ($missingFields.Count -gt 0) {
+        Write-Host "Necessary fields are missing from the work item: $($missingFields -join ', ')"
         return $null
     }
 
     # Construct the URI for creating a new work item based on the type from the existing item
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItem.fields['System.WorkItemType']}?api-version=6.0"
+    $workItemType = $workItem.fields.'System.WorkItemType'
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItemType}?api-version=6.0"
     
-
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
         @{
@@ -40,7 +47,7 @@ function Create-WorkItem($workItem) {
         @{
             "op" = "add"
             "path" = "/fields/System.WorkItemType"
-            "value" = $workItem.fields.'System.WorkItemType'  # Set the description from the work item
+            "value" = $workItem.fields.'System.WorkItemType'  # Incorrectly set in the example, not usually set via PATCH
         },
         @{
             "op" = "add"
@@ -57,27 +64,6 @@ function Create-WorkItem($workItem) {
     return $response
 }
 
-
-# Function to get all work items from the source project and area
-function Get-WorkItems {
-    $wiql = @{
-        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
-    }
-
-    $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
-    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
-
-    # Check if there are work items in the response and retrieve them
-    if ($response -and $response.workItems) {
-        $ids = $response.workItems.id -join ","
-        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=6.0"
-        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-        return $workItems
-    } else {
-        Write-Host "No work items found."
-        return @()  # Return an empty array if no work items are found
-    }
-}
 
 # Main script execution
 $workItems = Get-WorkItems
