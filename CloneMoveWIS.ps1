@@ -18,7 +18,7 @@ $headers = @{
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
-        query = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
     }
     
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
@@ -39,14 +39,14 @@ function Create-WorkItem($workItem) {
     
     $body = @(
         @{
-            op = "add"
-            path = "/fields/System.Title"
-            value = $workItem.fields['System.Title']
+            "op" = "add"
+            "path" = "/fields/System.Title"
+            "value" = $workItem.fields['System.Title']
         },
         @{
-            op = "add"
-            path = "/fields/System.Description"
-            value = $workItem.fields['System.Description']
+            "op" = "add"
+            "path" = "/fields/System.Description"
+            "value" = $workItem.fields['System.Description']
         }
         # Add more fields as necessary
     )
