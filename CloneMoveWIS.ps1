@@ -65,6 +65,27 @@ function Create-WorkItem($workItem) {
 }
 
 
+# Function to get all work items from the source project and area
+function Get-WorkItems {
+    $wiql = @{
+        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+    }
+
+    $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
+    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
+
+    # Check if there are work items in the response and retrieve them
+    if ($response -and $response.workItems) {
+        $ids = $response.workItems.id -join ","
+        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=6.0"
+        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
+        return $workItems
+    } else {
+        Write-Host "No work items found."
+        return @()  # Return an empty array if no work items are found
+    }
+}
+
 # Main script execution
 $workItems = Get-WorkItems
 if ($workItems) {
