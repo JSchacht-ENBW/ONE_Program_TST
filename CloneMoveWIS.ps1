@@ -78,7 +78,7 @@ if ($workItems) {
     #foreach ($wi in $workItems) {
     #    $newWi = Create-WorkItem $wi
     #    Write-Host "Created new work item with ID: $($newWi.id)"
-    Write-Host "Returned work items with ID: $workItems"
+    Write-Host "Returned work items with ID: $($workItems)"
     }
 } else {
     Write-Host "No work items to process."
