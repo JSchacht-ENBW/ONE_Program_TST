@@ -18,7 +18,7 @@ $headers = @{
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
-        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = 'ONE!\\xx_Sandkasten'"
+        "query" = "SELECT [System.Id], [System.Title], [System.State], [System.AreaPath] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
     }
 
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
