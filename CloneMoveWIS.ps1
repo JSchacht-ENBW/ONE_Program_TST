@@ -41,7 +41,7 @@ function Create-WorkItem($workItem) {
             "op" = "add"
             "path" = "/fields/System.WorkItemType"
             "value" = $workItem.fields.'System.Description'  # Set the description from the work item
-        }
+        },
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
