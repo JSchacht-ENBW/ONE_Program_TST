@@ -23,18 +23,21 @@ function Get-WorkItems {
 
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
     $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
-    Write-Host "Response: $($response | ConvertTo-Json -Compress)"
 
-    if ($response -and $response.workItems) {
-        $ids = $response.workItems.id -join ","
+    # Check if the response contains work items
+    if ($response -and $response.workItems -and $response.workItems.Count -gt 0) {
+        $ids = $response.workItems | ForEach-Object -Process { $_.id } -join ","
+        
         $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields,relations&api-version=6.0"
         $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
+        
         return $workItems
     } else {
         Write-Host "No work items found."
         return $null
     }
 }
+
 
 
 # Function to create a work item in the target project
