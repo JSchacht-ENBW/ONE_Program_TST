@@ -1,7 +1,7 @@
 # Set your Azure DevOps organization, project, and PAT
-$Organization = "your-organization"
-$Project = "your-project"
-$PAT = "your-personal-access-token"
+$Organization = "enbw"
+$Project = "ONE! Program_TST"
+$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"
 
 # Azure DevOps REST API endpoint for work items
 $Uri = "https://dev.azure.com/$Organization/$Project/_apis/wit/workitems/3164029?api-version=6.0"
