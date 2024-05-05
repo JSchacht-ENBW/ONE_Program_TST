@@ -21,7 +21,8 @@ function Create-WorkItem($workItem) {
         return $null
     }
 
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItem.fields['System.WorkItemType']?api-version=6.0"
+    # Construct the URI for creating a new work item based on the type from the existing item
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItem.fields['System.WorkItemType']}?api-version=6.0"
     
     # Define the body as an array of hashtables, modifying title and description
     $body = @(
@@ -35,7 +36,7 @@ function Create-WorkItem($workItem) {
             "path" = "/fields/System.Description"
             "value" = "This is a cloned item from another project."
         }
-        # Add more fields as necessary
+        # Additional fields can be added here as necessary
     )
 
     # Serialize the body using ConvertTo-Json with a depth to ensure all details are captured
@@ -45,6 +46,7 @@ function Create-WorkItem($workItem) {
     $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody
     return $response
 }
+
 
 # Function to get all work items from the source project and area
 function Get-WorkItems {
@@ -73,6 +75,14 @@ if ($workItems) {
     foreach ($wi in $workItems.value) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), Title: $($wi.fields.'System.Title')"
+
+         # Attempt to create a new work item in the target project using the existing work item's details
+        $newWorkItemResponse = Create-WorkItem $wi
+        if ($newWorkItemResponse) {
+            Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
+        } else {
+            Write-Host "Failed to create new work item."
+        }
     }
 } else {
     Write-Host "No work items to process."
