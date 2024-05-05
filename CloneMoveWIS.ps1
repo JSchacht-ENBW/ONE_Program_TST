@@ -1,7 +1,7 @@
 # Set variables
 $sourceOrg = "enbw"
 $sourceProject = "ONE!"
-$sourceArea = "ONE!\xx_Sandkasten"
+$sourceArea = "ONE!\\\\xx_Sandkasten"
 $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa" # Securely pass your PAT
