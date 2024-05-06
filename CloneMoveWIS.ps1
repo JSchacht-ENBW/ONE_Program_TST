@@ -23,7 +23,8 @@ Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicatio
 
 # Headers for authentication
 $headers = @{
-    "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
+    Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
+    ContentType = "application/json-patch+json"
 }
 
 # Function to create a work item in the target project
@@ -62,11 +63,7 @@ function Create-WorkItem($workItem) {
     ]
 "@ 
 
-    # Headers for authentication
-    $headers = @{
-        Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
-        ContentType = "application/json-patch+json"
-    }
+
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
