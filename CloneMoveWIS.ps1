@@ -2,6 +2,8 @@
 $sourceOrg = "enbw"
 $sourceProject = "ONE!"
 $sourceArea = "ONE!\\xx_Sandkasten"  # Use double backslash in PowerShell for correct escaping
+$targetOrg = "enbw"
+$targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
 # Base URI for Azure DevOps REST API calls
