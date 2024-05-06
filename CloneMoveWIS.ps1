@@ -20,7 +20,7 @@ function Create-WorkItem($workItem) {
 
 
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${{workItemType}}?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
    
 
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
