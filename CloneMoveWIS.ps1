@@ -48,7 +48,7 @@ function Create-WorkItem($workItem) {
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = $workItem.fields.'System.Description' -replace '(["\\])', '\\$1'  # Escape special JSON characters in the description
+            "value" = $workItem.fields.'System.Description' -replace '(["\\])', '\\$1'  # Escape special JSON characters in the descriptio
         }
     )
 
@@ -61,7 +61,7 @@ function Create-WorkItem($workItem) {
 }
 
  
- 
+
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
