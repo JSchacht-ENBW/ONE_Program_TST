@@ -67,6 +67,9 @@ function Create-WorkItem($workItem) {
         Write-Host "Body: $($jsonBody)"
         Write-Host "URI: $($uri)"
         Write-Host "URI: $($workItemType)"
+        $price = 100
+        $text = "The total costs `$$price"
+        Write-Host $text  # Outputs: The total costs $100
         
         # Check if the content can be converted to JSON
         try {
