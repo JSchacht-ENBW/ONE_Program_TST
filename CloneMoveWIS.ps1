@@ -29,34 +29,18 @@ function Create-WorkItem($workItem) {
     echo $uri
 
     # Define default values for required fields to ensure they are not null
-    $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
+    $WorkItemTitle = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
     $description = $workItem.fields.'System.Description'
 
-    $body = @"
-    [
-        {
-            "op": "add",
-            "path": "/fields/System.Title",
-            "value": "$title"
-        },
-        {
-            "op": "add",
-            "path": "/fields/System.State",
-            "value": "$state"
-        },
-        {
-            "op": "add",
-            "path": "/fields/System.WorkItemType",
-            "value": "$WorkItemType"
-        },
-        {
-            "op": "add",
-            "path": "/fields/System.Description",
-            "value": "$description"
-        }
-    ]
-"@ 
+    $body="[
+    {
+        `"op`": `"add`",
+        `"path`": `"/fields/System.Title`",
+        `"value`": `"$($WorkItemTitle)`"
+    }
+    ]"
+
 
     # Headers for authentication
     $headers = @{
