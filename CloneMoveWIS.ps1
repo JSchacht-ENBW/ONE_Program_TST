@@ -16,9 +16,7 @@ $headers = @{
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    $workItemType = $workItem.fields.'System.WorkItemType'
-    # Correctly embed the work item type in the URI
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$($WorkItemType)?validateOnly=True&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=api-version=7.2-preview.3"
+    $WorkItemType = $workItem.fields.'System.WorkItemType'
 
     $uri = $UriOrganization + $ProjectName + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     echo $uri
@@ -57,7 +55,7 @@ function Create-WorkItem($workItem) {
 
     # Attempt to execute the POST request
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -ContentType "application/json-patch+json" -Body $body
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
