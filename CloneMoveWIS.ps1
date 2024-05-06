@@ -53,7 +53,7 @@ function Create-WorkItem($workItem) {
 
     # Attempt to execute the POST request
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers  -ContentType "application/json-patch+json" -Body $body
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
