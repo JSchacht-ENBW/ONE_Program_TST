@@ -61,6 +61,46 @@ function Create-WorkItem($workItem) {
 }
 
 
+# Function to get all work items from the source project and area
+function Get-WorkItems {
+    $wiql = @{
+        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+    }
+
+    $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
+    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
+
+    # Check if there are work items in the response and retrieve them
+    if ($response -and $response.workItems) {
+        $ids = $response.workItems.id -join ","
+        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=6.0"
+        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
+        return $workItems
+    } else {
+        Write-Host "No work items found."
+        return @()  # Return an empty array if no work items are found
+    }
+}
+
+# Main script execution
+$workItems = Get-WorkItems
+if ($workItems) {
+    foreach ($wi in $workItems.value) {
+        # Print each work item's ID and Title (assuming ID is directly under the work item object)
+        Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
+
+         # Attempt to create a new work item in the target project using the existing work item's details
+        $newWorkItemResponse = Create-WorkItem $wi
+        if ($newWorkItemResponse) {
+            Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
+        } else {
+            Write-Host "Failed to create new work item."
+        }
+    }
+} else {
+    Write-Host "No work items to process."
+}
+
 
 
 
