@@ -16,11 +16,11 @@ $headers = @{
 }
 
 # Function to create a work item in the target project
-# Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    $workItemType = $($workItem.fields.'System.WorkItemType')
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
-
+    $workItemType = $workItem.fields.'System.WorkItemType'
+    # Correctly embed the work item type in the URI
+    $encodedWorkItemType = [System.Web.HttpUtility]::UrlEncode($workItemType)
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$encodedWorkItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
 
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
@@ -63,10 +63,6 @@ function Create-WorkItem($workItem) {
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
         Write-Host "Body: $($jsonBody)"
         Write-Host "URI: $($uri)"
-        Write-Host "URI: $($workItemType)"
-        $price = 100
-        $text = "The total costs `$$price"
-        Write-Host $text  # Outputs: The total costs $100
         
         # Check if the content can be converted to JSON
         try {
@@ -79,6 +75,7 @@ function Create-WorkItem($workItem) {
         return $null
     }
 }
+
 
 
 # Function to get all work items from the source project and area
