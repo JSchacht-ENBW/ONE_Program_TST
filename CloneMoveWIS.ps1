@@ -17,6 +17,10 @@ $headers = @{
 function Create-WorkItem($workItem) {
 
 
+    $workItemType = $workItem.fields.'System.WorkItemType'
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItemType}?api-version=6.0"
+   
+
     # Check if System.Description is null or empty and set it to an empty string if it is
     $description = if ($workItem.fields.'System.Description') {
         $workItem.fields.'System.Description'   # Escape special JSON characters in the description
