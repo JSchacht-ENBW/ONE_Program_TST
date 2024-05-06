@@ -7,70 +7,69 @@ $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
 $AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
-$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AzureDevOpsPAT)")) }
+$AzureDevOpsAuthenicationHeader = @{
+    Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
+}
 
 $OrganizationName = "enbw"
-$UriOrganization = "https://dev.azure.com/$($OrganizationName)/"
+$UriOrganization = "https://dev.azure.com/$OrganizationName/"
 
 #Lists all projects in your organization
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
-Invoke-RestMethod -Uri $uriAccount -Method get -Headers $AzureDevOpsAuthenicationHeader 
-
-
+Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
 # Headers for authentication
 $headers = @{
     "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-
+}
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
-
-    $uri = $UriOrganization + $ProjectName + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $UriOrganization + $targetProject + "/_apis/wit/workitems/`$$WorkItemType?api-version=5.1"
     echo $uri
 
-    
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
     $description = $workItem.fields.'System.Description'
 
-    $body="[
-    {
-        `"op`": `"add`",
-        `"path`": `"/fields/System.Title`",
-        `"value`": `"$($title)`"
-    },
-    {
-        `"op`": `"add`",
-        `"path`": `"/fields/System.State`",
-        `"value`": `"$($state)`"
-    },
-    {
-        `"op`": `"add`",
-        `"path`": `"/fields/System.WorkItemType`",
-        `"value`": `"$($workItemType)`"
-    },
-    {
-        `"op`": `"add`",
-        `"path`": `"/fields/System.Description`",
-        `"value`": `"$($description)`"
-    }
-    ]"
-
+    $body = @"
+    [
+        {
+            "op": "add",
+            "path": "/fields/System.Title",
+            "value": "$title"
+        },
+        {
+            "op": "add",
+            "path": "/fields/System.State",
+            "value": "$state"
+        },
+        {
+            "op": "add",
+            "path": "/fields/System.WorkItemType",
+            "value": "$WorkItemType"
+        },
+        {
+            "op": "add",
+            "path": "/fields/System.Description",
+            "value": "$description"
+        }
+    ]
+"@ 
 
     # Attempt to execute the POST request
     try {
-        Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
+        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
-        Write-Host "Body: $($body)"
-        Write-Host "URI: $($uri)"
-        
+        Write-Host "Body: $body"
+        Write-Host "URI: $uri"
+
         # Check if the content can be converted to JSON
         try {
             $content = $_.Exception.Response.Content | ConvertFrom-Json
@@ -78,53 +77,7 @@ function Create-WorkItem($workItem) {
         } catch {
             Write-Host "Raw Response Content: $($_.Exception.Response.Content)"
         }
-        
+
         return $null
     }
 }
-
-
-
-# Function to get all work items from the source project and area
-function Get-WorkItems {
-    $wiql = @{
-        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
-    }
-
-    $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
-    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
-
-    # Check if there are work items in the response and retrieve them
-    if ($response -and $response.workItems) {
-        $ids = $response.workItems.id -join ","
-        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=6.0"
-        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-        return $workItems
-    } else {
-        Write-Host "No work items found."
-        return @()  # Return an empty array if no work items are found
-    }
-}
-
-# Main script execution
-$workItems = Get-WorkItems
-if ($workItems) {
-    foreach ($wi in $workItems.value) {
-        # Print each work item's ID and Title (assuming ID is directly under the work item object)
-        Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
-
-         # Attempt to create a new work item in the target project using the existing work item's details
-        #$newWorkItemResponse = Create-WorkItem $wi
-        if ($newWorkItemResponse.id) {
-            Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
-        } else {
-            Write-Host "Failed to create new work item. $($newWorkItemResponse)"
-        }
-    }
-} else {
-    Write-Host "No work items to process."
-}
-
-
-
-
