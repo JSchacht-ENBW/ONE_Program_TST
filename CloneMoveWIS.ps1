@@ -25,8 +25,9 @@ Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicatio
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
+    $WorkItemType = "Feature"
 
-    $uri = $UriOrganization + $ProjectName + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $UriOrganization + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     echo $uri
 
     # Define default values for required fields to ensure they are not null
