@@ -12,7 +12,7 @@ $baseUri = "https://dev.azure.com/$sourceOrg"
 # Headers for authentication
 $headers = @{
     "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-    "Content-Type" = "application/json-patch+json"
+    "Content-Type" = "application/json"
 }
 
 # Function to create a work item in the target project
