@@ -60,6 +60,8 @@ function Create-WorkItem($workItem) {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
+        Write-Host "Body: $($body)"
+        Write-Host "URI: $($uri)"
         
         # Check if the content can be converted to JSON
         try {
