@@ -6,13 +6,14 @@ $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
-# Base URI for Azure DevOps REST API calls
-$baseUri = "https://dev.azure.com/$($sourceOrg)"
+
+#Authentication in Azure DevOps
+$AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
+$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AzureDevOpsPAT)")) }
 
 $OrganizationName = "enbw"
 $UriOrganization = "https://dev.azure.com/$($OrganizationName)/"
 
-$AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($PAT)")) }
 
 # Headers for authentication
 $headers = @{
