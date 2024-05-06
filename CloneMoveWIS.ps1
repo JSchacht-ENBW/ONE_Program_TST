@@ -7,7 +7,7 @@ $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
 # Base URI for Azure DevOps REST API calls
-$baseUri = "https://dev.azure.com/$($$sourceOrg)"
+$baseUri = "https://dev.azure.com/$($sourceOrg)"
 
 $OrganizationName = "enbw"
 $UriOrganization = "https://dev.azure.com/$($OrganizationName)/"
