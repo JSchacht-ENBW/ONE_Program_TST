@@ -125,7 +125,7 @@ if ($workItems) {
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
          # Attempt to create a new work item in the target project using the existing work item's details
-        #$newWorkItemResponse = Create-WorkItem $wi
+        $newWorkItemResponse = Create-WorkItem $wi
         if ($newWorkItemResponse.id) {
             Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
         } else {
