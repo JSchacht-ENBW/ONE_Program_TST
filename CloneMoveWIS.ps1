@@ -16,6 +16,14 @@ $headers = @{
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
 
+
+    # Check if System.Description is null or empty and set it to an empty string if it is
+    $description = if ($workItem.fields.'System.Description') {
+        $workItem.fields.'System.Description'   # Escape special JSON characters in the description
+    } else {
+        ""  # Use an empty string if the description is null or missing
+    }
+
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
         @{
@@ -36,7 +44,7 @@ function Create-WorkItem($workItem) {
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
+            "value" = $description  # Set the description from the work item
         }
     )
 
