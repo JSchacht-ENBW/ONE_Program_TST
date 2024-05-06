@@ -15,11 +15,6 @@ $headers = @{
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-    # Ensure necessary fields exist before proceeding
-    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
-        Write-Host "Necessary fields are missing from the work item."
-        return $null
-    }
 
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
@@ -47,6 +42,13 @@ function Create-WorkItem($workItem) {
 
     # Serialize the body using ConvertTo-Json with a depth to ensure all details are captured
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+
+    # Ensure necessary fields exist before proceeding
+    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
+        Write-Host "Necessary fields are missing from the work item."
+        return $jsonBody
+    }
+
 
     # Execute the PATCH request with the constructed JSON body
     $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody
