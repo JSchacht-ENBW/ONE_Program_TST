@@ -60,7 +60,7 @@ function Create-WorkItem($workItem) {
     } catch {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
-        Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
+        Write-Host "Status Description: $($_.Exception.Response.StatusDescription.Value__)"
         Write-Host "Body: $($jsonBody)"
         Write-Host "URI: $($uri)"
         
