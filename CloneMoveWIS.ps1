@@ -66,6 +66,7 @@ function Create-WorkItem($workItem) {
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
         Write-Host "Body: $($jsonBody)"
         Write-Host "URI: $($uri)"
+        Write-Host "URI: $($workItemType)"
         
         # Check if the content can be converted to JSON
         try {
