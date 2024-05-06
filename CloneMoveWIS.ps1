@@ -27,13 +27,11 @@ function Create-WorkItem($workItem) {
         Write-Host "Necessary fields are missing from the work item: $($missingFields -join ', ')"
         return $null
     }
-
     # Construct the URI for creating a new work item based on the type from the existing item
-    $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItemType}?api-version=6.0"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItem.fields['System.WorkItemType']}?api-version=6.0"
     
+
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
-    # Description is escaped for JSON
     $body = @(
         @{
             "op" = "add"
@@ -47,8 +45,13 @@ function Create-WorkItem($workItem) {
         },
         @{
             "op" = "add"
+            "path" = "/fields/System.WorkItemType"
+            "value" = $workItem.fields.'System.WorkItemType'  # Set the description from the work item
+        },
+        @{
+            "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = $workItem.fields.'System.Description' -replace '(["\\])', '\\$1'  # Escape special JSON characters in the descriptio
+            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
         }
     )
 
@@ -59,7 +62,6 @@ function Create-WorkItem($workItem) {
     $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody
     return $response
 }
-
  
 
 # Function to get all work items from the source project and area
