@@ -23,7 +23,7 @@ function Create-WorkItem($workItem) {
     $formattedWorkItemType = $workItemType -replace ' ', '%20'
 
     # Construct the URI, explicitly adding a `%` before the work item type if needed
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/%$formattedWorkItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems?validateOnly=False&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
 
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
