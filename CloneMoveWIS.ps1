@@ -86,10 +86,10 @@ if ($workItems) {
 
          # Attempt to create a new work item in the target project using the existing work item's details
         $newWorkItemResponse = Create-WorkItem $wi
-        if ($newWorkItemResponse) {
+        if ($newWorkItemResponse.id) {
             Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
         } else {
-            Write-Host "Failed to create new work item."
+            Write-Host "Failed to create new work item. $($newWorkItemResponse)"
         }
     }
 } else {
