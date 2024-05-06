@@ -61,8 +61,6 @@ function Create-WorkItem($workItem) {
     ]"
 
 
-   
-
     # Attempt to execute the POST request
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
