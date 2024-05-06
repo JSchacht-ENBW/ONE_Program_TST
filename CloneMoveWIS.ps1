@@ -6,6 +6,9 @@ $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
+# Base URI for Azure DevOps REST API calls
+$baseUri = "https://dev.azure.com/$sourceOrg"
+
 $AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
 $AzureDevOpsAuthenicationHeader = @{
     Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
@@ -58,7 +61,6 @@ function Create-WorkItem($workItem) {
         }
     ]
 "@ 
-
 
     # Headers for authentication
     $headers = @{
@@ -129,7 +131,4 @@ if ($workItems) {
 } else {
     Write-Host "No work items to process."
 }
-
-
-
 
