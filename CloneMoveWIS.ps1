@@ -63,7 +63,7 @@ function Create-WorkItem($workItem) {
 
     # Attempt to execute the POST request
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
+        Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
