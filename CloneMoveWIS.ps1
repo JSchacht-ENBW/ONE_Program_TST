@@ -19,8 +19,11 @@ $headers = @{
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $encodedWorkItemType = [System.Web.HttpUtility]::UrlEncode($workItemType)
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$encodedWorkItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
+    # Properly encode the work item type to handle spaces and special characters
+    $encodedWorkItemType = [uri]::EscapeDataString($workItemType)
+
+    # Construct the URI with correct PowerShell string formatting
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/${encodedWorkItemType}?validateOnly=False&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
 
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
