@@ -17,7 +17,6 @@ $headers = @{
 
 # Function to create a work item in the target project
 # Function to create a work item in the target project
-# Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $workItemType = $workItem.fields.'System.WorkItemType'
     $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
@@ -61,11 +60,18 @@ function Create-WorkItem($workItem) {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
-        Write-Host "Response Content: $($_.Exception.Response.Content | ConvertFrom-Json)"
+        
+        # Check if the content can be converted to JSON
+        try {
+            $content = $_.Exception.Response.Content | ConvertFrom-Json
+            Write-Host "Response Content: $($content)"
+        } catch {
+            Write-Host "Raw Response Content: $($_.Exception.Response.Content)"
+        }
+        
         return $null
     }
 }
-
 
 
 # Function to get all work items from the source project and area
