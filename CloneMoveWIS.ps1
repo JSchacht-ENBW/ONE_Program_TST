@@ -20,15 +20,8 @@ function Create-WorkItem($workItem) {
 
 
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${$workItemType}?api-version=6.0"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`${{workItemType}}?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
    
-
-    # Check if System.Description is null or empty and set it to an empty string if it is
-    $description = if ($workItem.fields.'System.Description') {
-        $workItem.fields.'System.Description'   # Escape special JSON characters in the description
-    } else {
-        ""  # Use an empty string if the description is null or missing
-    }
 
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
@@ -50,7 +43,7 @@ function Create-WorkItem($workItem) {
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = $description  # Set the description from the work item
+            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
         }
     )
 
@@ -65,7 +58,7 @@ function Create-WorkItem($workItem) {
 
 
     # Execute the PATCH request with the constructed JSON body
-    $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody
+    $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $jsonBody
     return $response
 }
  
