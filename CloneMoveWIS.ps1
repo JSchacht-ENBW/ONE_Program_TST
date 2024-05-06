@@ -21,11 +21,6 @@ $UriOrganization = "https://dev.azure.com/$OrganizationName/"
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
-# Headers for authentication
-$headers = @{
-    Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
-    ContentType = "application/json-patch+json"
-}
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
@@ -63,6 +58,12 @@ function Create-WorkItem($workItem) {
     ]
 "@ 
 
+    # Headers for authentication
+    $headers = @{
+        Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
+        ContentType = "application/json-patch+json"
+    }
+
 
 
     try {
@@ -93,6 +94,12 @@ function Create-WorkItem($workItem) {
 function Get-WorkItems {
     $wiql = @{
         "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
+    }
+
+    # Headers for authentication
+    $headers = @{
+        "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
+        "Content-Type" = "application/json"
     }
 
     $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
