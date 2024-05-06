@@ -25,7 +25,7 @@ function Create-WorkItem($workItem) {
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
-    $description = if ($workItem.fields.'System.Description') { $workItem.fields.'System.Description' } else { "" }
+    $description = $workItem.fields.'System.Description'
 
     # Construct the body of the POST request
     $body = @(
