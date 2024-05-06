@@ -17,16 +17,17 @@ $headers = @{
 
 # Function to create a work item in the target project
 # Function to create a work item in the target project
+# Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
 
-    # Ensure necessary fields are not null before creating the work item
+    # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
     $description = if ($workItem.fields.'System.Description') { $workItem.fields.'System.Description' } else { "" }
 
-    # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
+    # Construct the body of the POST request
     $body = @(
         @{
             "op" = "add"
@@ -52,15 +53,19 @@ function Create-WorkItem($workItem) {
 
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
-    # Execute the POST request with the constructed JSON body
+    # Attempt to execute the POST request
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $jsonBody
         return $response
     } catch {
-        Write-Host "Failed to create new work item: $($_.Exception.Message)"
+        Write-Host "Request failed with the following details:"
+        Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
+        Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
+        Write-Host "Response Content: $($_.Exception.Response.Content | ConvertFrom-Json)"
         return $null
     }
 }
+
 
 
 # Function to get all work items from the source project and area
