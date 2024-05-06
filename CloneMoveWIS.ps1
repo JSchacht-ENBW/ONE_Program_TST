@@ -16,52 +16,52 @@ $headers = @{
 }
 
 # Function to create a work item in the target project
+# Function to create a work item in the target project
 function Create-WorkItem($workItem) {
-
-
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
-   
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
+
+    # Ensure necessary fields are not null before creating the work item
+    $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
+    $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
+    $description = if ($workItem.fields.'System.Description') { $workItem.fields.'System.Description' } else { "" }
 
     # Define the body as an array of hashtables, setting title, state, and description from the submitted work item
     $body = @(
         @{
             "op" = "add"
             "path" = "/fields/System.Title"
-            "value" = $workItem.fields.'System.Title'  # Set the title from the work item
+            "value" = $title
         },
         @{
             "op" = "add"
             "path" = "/fields/System.State"
-            "value" = $workItem.fields.'System.State'  # Set the state from the work item
+            "value" = $state
         },
         @{
             "op" = "add"
             "path" = "/fields/System.WorkItemType"
-            "value" = $workItem.fields.'System.WorkItemType'  # Set the description from the work item
+            "value" = $workItemType
         },
         @{
             "op" = "add"
             "path" = "/fields/System.Description"
-            "value" = $workItem.fields.'System.Description'  # Set the description from the work item
+            "value" = $description
         }
     )
 
-    # Serialize the body using ConvertTo-Json with a depth to ensure all details are captured
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
-    # Ensure necessary fields exist before proceeding
-    if (-not $workItem.fields['System.Title'] -or -not $workItem.fields['System.WorkItemType']) {
-        Write-Host "Necessary fields are missing from the work item."
-        return $jsonBody
+    # Execute the POST request with the constructed JSON body
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $jsonBody
+        return $response
+    } catch {
+        Write-Host "Failed to create new work item: $($_.Exception.Message)"
+        return $null
     }
-
-
-    # Execute the PATCH request with the constructed JSON body
-    $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $jsonBody
-    return $response
 }
- 
+
 
 # Function to get all work items from the source project and area
 function Get-WorkItems {
