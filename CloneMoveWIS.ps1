@@ -20,46 +20,50 @@ function Create-WorkItem($workItem) {
     # Correctly embed the work item type in the URI
     $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$($WorkItemType)?validateOnly=True&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=api-version=7.2-preview.3"
 
+    $uri = $UriOrganization + $ProjectName + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    echo $uri
+
+    
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
     $description = $workItem.fields.'System.Description'
 
-    # Construct the body of the POST request
-    $body = @(
-        @{
-            "op" = "add"
-            "path" = "/fields/System.Title"
-            "value" = $title
-        },
-        @{
-            "op" = "add"
-            "path" = "/fields/System.State"
-            "value" = $state
-        },
-        @{
-            "op" = "add"
-            "path" = "/fields/System.WorkItemType"
-            "value" = $workItemType
-        },
-        @{
-            "op" = "add"
-            "path" = "/fields/System.Description"
-            "value" = $description
-        }
-    )
+    $body="[
+    {
+        `"op`": `"add`",
+        `"path`": `"/fields/System.Title`",
+        `"value`": `"$($title)`"
+    },
+    {
+        `"op`": `"add`",
+        `"path`": `"/fields/System.State`",
+        `"value`": `"$($state)`"
+    },
+    {
+        `"op`": `"add`",
+        `"path`": `"/fields/System.WorkItemType`",
+        `"value`": `"$($workItemType)`"
+    },
+    {
+        `"op`": `"add`",
+        `"path`": `"/fields/System.Description`",
+        `"value`": `"$($description)`"
+    }
+    ]"
 
-    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+
+   
 
     # Attempt to execute the POST request
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
         Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
-        Write-Host "Body: $($jsonBody)"
+        Write-Host "Body: $($body)"
         Write-Host "URI: $($uri)"
         
         # Check if the content can be converted to JSON
