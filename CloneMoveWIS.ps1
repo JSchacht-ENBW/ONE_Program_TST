@@ -6,23 +6,21 @@ $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
-
-#Authentication in Azure DevOps
 $AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
 $AzureDevOpsAuthenicationHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($AzureDevOpsPAT)")) }
 
 $OrganizationName = "enbw"
 $UriOrganization = "https://dev.azure.com/$($OrganizationName)/"
 
-
-# Headers for authentication
-$headers = @{
-    "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-
 #Lists all projects in your organization
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method get -Headers $AzureDevOpsAuthenicationHeader 
 
+
+
+# Headers for authentication
+$headers = @{
+    "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
 
 
 # Function to create a work item in the target project
@@ -116,7 +114,7 @@ if ($workItems) {
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
          # Attempt to create a new work item in the target project using the existing work item's details
-        $newWorkItemResponse = Create-WorkItem $wi
+        #$newWorkItemResponse = Create-WorkItem $wi
         if ($newWorkItemResponse.id) {
             Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
         } else {
