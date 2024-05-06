@@ -52,7 +52,7 @@ function Create-WorkItem($workItem) {
 
 
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
         Write-Host "Work item created successfully: $($response.id)"
         return $response
     } catch {
