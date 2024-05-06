@@ -12,15 +12,13 @@ $baseUri = "https://dev.azure.com/$sourceOrg"
 # Headers for authentication
 $headers = @{
     "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-    "Content-Type" = "application/json-patch+json"
 }
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $workItemType = $workItem.fields.'System.WorkItemType'
     # Correctly embed the work item type in the URI
-    $encodedWorkItemType = [System.Web.HttpUtility]::UrlEncode($workItemType)
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$($WorkItemType)?validateOnly=True&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=7.1"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$($WorkItemType)?validateOnly=True&bypassRules=True&suppressNotifications=True&`$expand=fields&api-version=api-version=7.2-preview.3"
 
     # Define default values for required fields to ensure they are not null
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
@@ -55,12 +53,12 @@ function Create-WorkItem($workItem) {
 
     # Attempt to execute the POST request
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Body $jsonBody
+        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers  -ContentType "application/json-patch+json" -Body $body
         return $response
     } catch {
         Write-Host "Request failed with the following details:"
         Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
-        Write-Host "Status Description: $($_.Exception.Response.StatusDescription.Value__)"
+        Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
         Write-Host "Body: $($jsonBody)"
         Write-Host "URI: $($uri)"
         
