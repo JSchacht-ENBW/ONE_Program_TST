@@ -19,7 +19,7 @@ $headers = @{
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $workItemType = $workItem.fields.'System.WorkItemType'
-    $uri = "$baseUri/$targetProject/_apis/wit/workitems/`$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
+    $uri = "$baseUri/$targetProject/_apis/wit/workitems/$$workItemType?validateOnly=False&bypassRules=True&suppressNotifications=True&$expand=fields&api-version=7.1"
 
     # Ensure necessary fields are not null before creating the work item
     $title = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
