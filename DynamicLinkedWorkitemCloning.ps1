@@ -246,7 +246,7 @@ if ($workItems) {
         #$newWorkItemResponse = Create-WorkItem $wi
         # Clone the work item
         if ($wi) {
-            $newWorkItem = CloneWorkItem -orgUrl $baseUri -targetProject $sourceProject -headers $headers -workItem $wi
+            $newWorkItem = CloneWorkItem -orgUrl $baseUri -targetProject $targetProject -headers $headers -workItem $wi
         }
 
         if ($newWorkItemResponse.id) {
