@@ -130,7 +130,7 @@ function CloneWorkItem {
 
         # Check against field names that should not be included
         foreach ($excludeSubstring in $fieldNamesNotIncludes) {
-            if ($includeField) {
+            if ($field.Name.Contains($excludeSubstring)) {
                 $includeField = $false
                 break
             }
