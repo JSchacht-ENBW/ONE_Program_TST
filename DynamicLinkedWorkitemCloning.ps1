@@ -22,11 +22,6 @@ $UriOrganization = "https://dev.azure.com/$OrganizationName/"
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
-# Define the mapping from source AreaPaths to target AreaPaths
-$areaPathMap = @{
-    "$($sourceArea)" = "$($targetProject)\\$($targetArea)"
-}
-$areamap = $areaPathMap | ConvertTo-Json -Depth 10 -Compress
 
 Write-Host "mappedAreaPath:$areamap"
 
@@ -139,8 +134,6 @@ function CloneWorkItem {
 
     )
 
-    # Handling AreaPath mapping
-    $mappedAreaPath = MapAreaPath -sourceAreaPath $workItem.fields.'System.AreaPath' -areaPathMap $areaPathMap
 
     $fieldNamesNotIncludes = @("Kanban.Column")
 
@@ -151,7 +144,7 @@ function CloneWorkItem {
     $body += @{
         "op"    = "add"
         "path"  = "/fields/System.AreaPath"
-        "value" = $mappedAreaPath
+        "value" = $targetArea
     }
 
     # Loop through all fields in the source work item and prepare them for the new work item
