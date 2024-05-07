@@ -24,7 +24,7 @@ Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicatio
 
 # Define the mapping from source AreaPaths to target AreaPaths
 $areaPathMap = @{
-    "$($($sourceArea)" = "$($targetProject)\\$($targetArea)"
+    "$($sourceArea)" = "$($targetProject)\\$($targetArea)"
 }
 $areamap = $areaPathMap | ConvertTo-Json -Depth 10 -Compress
 
