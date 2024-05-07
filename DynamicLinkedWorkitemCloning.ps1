@@ -153,7 +153,7 @@ $headers = @{
     "Content-Type" = "application/json"
 }
 
-$allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject sourceProject -sourceArea sourceArea -headers $headers
+$allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
 foreach ($item in $allDetails) {
     Write-Host "Work Item ID: $($item.id), Title: $($item.fields.'System.Title')"
