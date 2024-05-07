@@ -131,10 +131,10 @@ function Get-AllWorkItemDetails {
         $allWorkItems = @()
         foreach ($workItemRef in $wiqlResponse.workItems) {
             $workItemId = $workItemRef.id
-            $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems/$workItemId?api-version=6.0&$expand=all"
+            $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems/$($workItemId)?api-version=6.0&$expand=all"
             
             try {
-                $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
+                #$workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $allWorkItems += $workItemDetails
             } catch {
