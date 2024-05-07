@@ -150,7 +150,7 @@ function CloneWorkItem {
         "path"  = "/fields/System.AreaPath"
         "value" = $mappedAreaPath
     }
-    
+
     # Loop through all fields in the source work item and prepare them for the new work item
     foreach ($field in $workItem.fields.PSObject.Properties) {
         $includeField = $true
@@ -203,6 +203,7 @@ function CloneWorkItem {
     } catch {
         Write-Host "Failed to clone work item: $($_.Exception.Message)"
         Write-Host "Response:$response"
+        Write-Host "mappedAreaPath:$mappedAreaPath"
         Write-Host "Target Project: $targetProject"
         Write-Host "Request Body: $jsonBody"
         Write-Host "URI: $uri"
