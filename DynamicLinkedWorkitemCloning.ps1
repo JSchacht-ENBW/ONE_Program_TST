@@ -21,14 +21,14 @@ $UriOrganization = "https://dev.azure.com/$OrganizationName/"
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
-
 function Escape-JsonString {
     param (
         [string]$inputString
     )
 
-    # PowerShell replacement for escaping JSON strings
-    return $inputString.Replace("`", "``").Replace("\", "\\").Replace("`"", "`"`"")
+    # Replace only the double quotes and backslashes
+    $escapedString = $inputString -replace '\\', '\\\\' -replace '"', '\"'
+    return $escapedString
 }
 
 # Function to create a work item in the target project
