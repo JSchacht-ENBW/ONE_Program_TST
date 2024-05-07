@@ -136,7 +136,9 @@ function CloneWorkItem {
         return $response
     } catch {
         Write-Host "Failed to clone work item: $($_.Exception.Message)"
-        Write-Host "Request Body: $jsonBody"
+        Write-Host "Response:$response"
+        Write-Host "Request Body: $body"
+        Write-Host "URI: $uri"
         return $null
     }
 }
