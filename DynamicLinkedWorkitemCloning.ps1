@@ -91,6 +91,56 @@ function Create-WorkItem($workItem) {
     }
 }
 
+function CloneWorkItem {
+    param (
+        [string]$orgUrl,
+        [string]$projectId,
+        [hashtable]$headers,
+        [psobject]$sourceWorkItem
+    )
+
+    $uri = "$orgUrl/$projectId/_apis/wit/workitems/`$task?api-version=6.0"
+    $body = @()
+
+    # Loop through all fields in the source work item and prepare them for the new work item
+    foreach ($field in $sourceWorkItem.fields.PSObject.Properties) {
+        $body += @{
+            "op" = "add"
+            "path" = "/fields/$($field.Name)"
+            "value" = $field.Value
+        }
+    }
+
+    # Include relationships if necessary
+    if ($sourceWorkItem.relations) {
+        foreach ($link in $sourceWorkItem.relations) {
+            $body += @{
+                "op" = "add"
+                "path" = "/relations/-"
+                "value" = @{
+                    "rel" = $link.rel
+                    "url" = $link.url
+                    "attributes" = @{
+                        "comment" = "Cloned from work item $($sourceWorkItem.id)"
+                    }
+                }
+            }
+        }
+    }
+
+    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -Body $jsonBody -ContentType "application/json-patch+json"
+        Write-Host "Successfully created new work item with ID: $($response.id)"
+        return $response
+    } catch {
+        Write-Host "Failed to clone work item: $($_.Exception.Message)"
+        Write-Host "Request Body: $jsonBody"
+        return $null
+    }
+}
+
 
 # Function to get all work items from the source project and area
 function Get-WorkItems {
@@ -189,7 +239,12 @@ if ($workItems) {
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
          # Attempt to create a new work item in the target project using the existing work item's details
-        $newWorkItemResponse = Create-WorkItem $wi
+        #$newWorkItemResponse = Create-WorkItem $wi
+        # Clone the work item
+        if ($wi) {
+            $newWorkItem = CloneWorkItem -orgUrl $organizationUrl -projectId $projectId -headers $headers -sourceWorkItem $sourceWorkItem
+        }
+
         if ($newWorkItemResponse.id) {
             Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
         } else {
