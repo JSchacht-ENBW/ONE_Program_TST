@@ -26,7 +26,8 @@ Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicatio
 $areaPathMap = @{
     "$($sourceOrg)\\$($sourceArea)" = "$($targetProject)\\$($targetArea)"
 }
-$areamap = @$areaPathMap | ConvertTo-Json -Depth 10 -Compress
+$areamap = $areaPathMap | ConvertTo-Json -Depth 10 -Compress
+
 Write-Host "mappedAreaPath:$areamap"
 
 function MapAreaPath {
