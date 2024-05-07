@@ -26,10 +26,16 @@ function Escape-JsonString {
         [string]$inputString
     )
 
-    # Replace only the double quotes and backslashes
+    # Replace backslashes and double quotes for JSON
     $escapedString = $inputString -replace '\\', '\\\\' -replace '"', '\"'
+
+    # If needed, add further replacements here for other special characters
+    # These are not typical for JSON but may be needed for other parts of your application
+    $escapedString = $escapedString -replace '@', '\@' -replace '\(', '\(' -replace '\)', '\)' -replace '\?', '\?'
+
     return $escapedString
 }
+
 
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
