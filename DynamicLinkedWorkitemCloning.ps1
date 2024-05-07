@@ -94,16 +94,17 @@ function Create-WorkItem($workItem) {
 function CloneWorkItem {
     param (
         [string]$orgUrl,
-        [string]$projectId,
+        [string]$targetProject,
         [hashtable]$headers,
-        [psobject]$sourceWorkItem
+        [psobject]$workItem
     )
+    $WorkItemType = $workItem.fields.'System.WorkItemType'
 
-    $uri = "$($orgUrl)/$($projectId)/_apis/wit/workitems/`$task?api-version=6.0"
+    $uri = $orgUrl + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1""
     $body = @()
 
     # Loop through all fields in the source work item and prepare them for the new work item
-    foreach ($field in $sourceWorkItem.fields.PSObject.Properties) {
+    foreach ($field in $workItem.fields.PSObject.Properties) {
         $body += @{
             "op" = "add"
             "path" = "/fields/$($field.Name)"
@@ -112,8 +113,8 @@ function CloneWorkItem {
     }
 
     # Include relationships if necessary
-    if ($sourceWorkItem.relations) {
-        foreach ($link in $sourceWorkItem.relations) {
+    if ($workItem.relations) {
+        foreach ($link in $workItem.relations) {
             $body += @{
                 "op" = "add"
                 "path" = "/relations/-"
@@ -121,7 +122,7 @@ function CloneWorkItem {
                     "rel" = $link.rel
                     "url" = $link.url
                     "attributes" = @{
-                        "comment" = "Cloned from work item $($sourceWorkItem.id)"
+                        "comment" = "Cloned from work item $($workItem.id)"
                     }
                 }
             }
@@ -137,7 +138,7 @@ function CloneWorkItem {
     } catch {
         Write-Host "Failed to clone work item: $($_.Exception.Message)"
         Write-Host "Response:$response"
-        Write-Host "Request Body: $body"
+        Write-Host "Request Body: $jsonBody"
         Write-Host "URI: $uri"
         return $null
     }
