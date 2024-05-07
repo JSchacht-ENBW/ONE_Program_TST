@@ -300,7 +300,7 @@ $headers = @{
 $allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
 foreach ($item in $allDetails) {
-    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title', AreaPath: $($item.fields.'System.AreaPath')"
+    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title'), AreaPath: $($item.fields.'System.AreaPath')"
 }
 
 # Main script execution
