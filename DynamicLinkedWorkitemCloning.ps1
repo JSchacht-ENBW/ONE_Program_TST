@@ -134,10 +134,15 @@ function Get-AllWorkItemDetails {
             $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems/$workItemId?api-version=6.0&$expand=all"
             
             try {
+                $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $allWorkItems += $workItemDetails
             } catch {
                 Write-Host "Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
+                Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
+                Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
+                Write-Host "Workitem: $($workItemId)"
+                Write-Host "URI: $($detailUri)"
             }
         }
         return $allWorkItems
