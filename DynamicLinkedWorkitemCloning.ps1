@@ -100,15 +100,26 @@ function CloneWorkItem {
     )
     $WorkItemType = $workItem.fields.'System.WorkItemType'
 
+    # Define non-writable fields
+    $nonWritableFields = @(
+        "System.Id", "System.Rev", "System.CreatedDate", "System.CreatedBy",
+        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate",
+        "System.AreaId", "System.IterationId", "System.WorkItemType", 
+        "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
+        "System.BoardColumnDone", "System.Watermark"
+    )
+
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
 
     # Loop through all fields in the source work item and prepare them for the new work item
     foreach ($field in $workItem.fields.PSObject.Properties) {
-        $body += @{
-            "op" = "add"
-            "path" = "/fields/$($field.Name)"
-            "value" = $field.Value
+        if ($field.Name -notin $nonWritableFields) {
+            $body += @{
+                "op"    = "add"
+                "path"  = "/fields/$($field.Name)"
+                "value" = $field.Value
+            }
         }
     }
 
