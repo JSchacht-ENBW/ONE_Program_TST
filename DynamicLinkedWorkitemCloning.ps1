@@ -130,7 +130,7 @@ function CloneWorkItem {
          "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column.Done",
          "System.BoardColumn",
          "Microsoft.VSTS.Common.StateChangeDate",
-         "System.TeamProject", "System.AreaPath"
+         "System.TeamProject", "System.AreaPath", "System.IterationPath"
 
     )
 
@@ -144,7 +144,12 @@ function CloneWorkItem {
     $body += @{
         "op"    = "add"
         "path"  = "/fields/System.AreaPath"
-        "value" = $targetArea
+        "value" = $targetProject
+    }
+       $body += @{
+        "op"    = "add"
+        "path"  = "/fields/System.IterationPath"
+        "value" = $targetProject
     }
 
     # Loop through all fields in the source work item and prepare them for the new work item
