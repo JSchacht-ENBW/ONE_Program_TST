@@ -165,7 +165,8 @@ foreach ($item in $allDetails) {
 }
 
 # Main script execution
-$workItems = Get-WorkItems
+#$workItems = Get-WorkItems
+$workItems = $allDetails
 if ($workItems) {
     foreach ($wi in $workItems.value) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
