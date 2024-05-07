@@ -22,6 +22,15 @@ $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
 
+function Escape-JsonString {
+    param (
+        [string]$inputString
+    )
+
+    # PowerShell replacement for escaping JSON strings
+    return $inputString.Replace("`", "``").Replace("\", "\\").Replace("`"", "`"`"")
+}
+
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
@@ -32,6 +41,7 @@ function Create-WorkItem($workItem) {
 
     # Define default values for required fields to ensure they are not null
     $WorkItemTitle = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
+    $WorkItemTitle = Escape-JsonString -inputString $WorkItemTitle
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
     $description = $workItem.fields.'System.Description'
 
