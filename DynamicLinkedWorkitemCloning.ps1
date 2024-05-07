@@ -31,7 +31,7 @@ function Escape-JsonString {
 
     # If needed, add further replacements here for other special characters
     # These are not typical for JSON but may be needed for other parts of your application
-    $escapedString =  $escapedString = $escapedString -replace '@', '`@' -replace '(', '`(' -replace ')', '`\)' -replace '?', '`?'
+    $escapedString =  $escapedString -replace '@', '`@' -replace '(', '`(' -replace ')', '`\)' -replace '?', '`?'
 
     return $escapedString
 }
