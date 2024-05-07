@@ -130,7 +130,7 @@ function CloneWorkItem {
          "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column.Done",
          "System.BoardColumn",
          "Microsoft.VSTS.Common.StateChangeDate",
-         "System.TeamProject"
+         "System.TeamProject", "System.AreaPath"
 
     )
 
