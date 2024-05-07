@@ -106,14 +106,36 @@ function CloneWorkItem {
         "System.ChangedDate", "System.ChangedBy", "System.RevisedDate",
         "System.AreaId", "System.IterationId", "System.WorkItemType", 
         "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
-        "System.BoardColumnDone", "System.Watermark"
+        "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
+         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_System.ExtensionMarker" , "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column",
+         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column.Done",
+         "System.BoardColumn",
+         "Microsoft.VSTS.Common.StateChangeDate"
+
     )
+
+    $fieldNamesNotIncludes = @("Kanban.Column")
 
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
 
     # Loop through all fields in the source work item and prepare them for the new work item
     foreach ($field in $workItem.fields.PSObject.Properties) {
+        $includeField = $true
+
+        # Check against non-writable fields list
+        if ($field.Name -in $nonWritableFields) {
+            $includeField = $false
+        }
+
+        # Check against field names that should not be included
+        foreach ($excludeSubstring in $fieldNamesNotIncludes) {
+            if ($includeField) {
+                $includeField = $false
+                break
+            }
+        }
+
         if ($field.Name -notin $nonWritableFields) {
             $body += @{
                 "op"    = "add"
