@@ -137,7 +137,7 @@ function Get-AllWorkItemDetails {
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $allWorkItems += $workItemDetails
             } catch {
-                Write-Host "Failed to retrieve details for work item ID $workItemId: $($_.Exception.Message)"
+                Write-Host "Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
             }
         }
         return $allWorkItems
