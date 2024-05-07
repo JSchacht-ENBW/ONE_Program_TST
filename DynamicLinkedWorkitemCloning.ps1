@@ -49,7 +49,7 @@ function Create-WorkItem($workItem) {
     $WorkItemTitle = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
     $WorkItemTitle = Escape-JsonString -inputString $WorkItemTitle
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
-    $description = $workItem.fields.'System.Description'
+    #$description = $workItem.fields.'System.Description'
 
     $body="[
     {
