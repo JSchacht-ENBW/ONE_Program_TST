@@ -181,12 +181,6 @@ function Get-AllWorkItemDetails {
         [hashtable]$headers
     )
 
-    # Define a list of non-writable fields
-    $nonWritableFields = @("System.Id", "System.Rev", "System.CreatedDate", "System.CreatedBy", 
-                           "System.ChangedDate", "System.ChangedBy", "System.RevisedDate", "System.Watermark", 
-                           "System.AuthorizedDate", "System.AuthorizedAs", "System.PersonId", "System.Rev", 
-                           "System.AreaId", "System.IterationId", "System.WorkItemType")
-                           
     # WIQL query to retrieve work item IDs
     $wiql = @{
         "query" = "SELECT [System.Id] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
@@ -209,23 +203,10 @@ function Get-AllWorkItemDetails {
             $workItemId = $workItemRef.id
             $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems/$($workItemId)?api-version=6.0&`$expand=all"
             
-           try {
+            try {
+                #$workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-                # Create a new object to hold only writable fields
-                $clonableFields = @()
-                foreach ($field in $workItemDetails.fields.PSObject.Properties) {
-                    if ($field.Name -notin $nonWritableFields) {
-                        $clonableFields += @{
-                            "op" = "add"
-                            "path" = "/fields/$($field.Name)"
-                            "value" = $field.Value
-                        }
-                    }
-                }
-                $allWorkItems += [pscustomobject]@{
-                    id = $workItemDetails.id
-                    fields = $clonableFields
-                }
+                $allWorkItems += $workItemDetails
             } catch {
                 Write-Host "Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
                 Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
