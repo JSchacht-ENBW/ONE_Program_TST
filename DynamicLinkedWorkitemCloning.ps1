@@ -99,7 +99,7 @@ function CloneWorkItem {
         [psobject]$sourceWorkItem
     )
 
-    $uri = "$orgUrl/$projectId/_apis/wit/workitems/`$task?api-version=6.0"
+    $uri = "$($orgUrl)/$($projectId)/_apis/wit/workitems/`$task?api-version=6.0"
     $body = @()
 
     # Loop through all fields in the source work item and prepare them for the new work item
@@ -244,7 +244,7 @@ if ($workItems) {
         #$newWorkItemResponse = Create-WorkItem $wi
         # Clone the work item
         if ($wi) {
-            $newWorkItem = CloneWorkItem -orgUrl $organizationUrl -projectId $projectId -headers $headers -sourceWorkItem $sourceWorkItem
+            $newWorkItem = CloneWorkItem -orgUrl $baseUri -projectId $sourceProject -headers $headers -sourceWorkItem $wi
         }
 
         if ($newWorkItemResponse.id) {
