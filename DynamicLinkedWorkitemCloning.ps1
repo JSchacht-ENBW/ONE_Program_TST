@@ -4,6 +4,7 @@ $sourceProject = "ONE!"
 $sourceArea = "ONE!\\xx_Sandkasten"  # Use double backslash in PowerShell for correct escaping
 $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
+$targetArea = $targetProject
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
 # Base URI for Azure DevOps REST API calls
@@ -20,6 +21,26 @@ $UriOrganization = "https://dev.azure.com/$OrganizationName/"
 #Lists all projects in your organization
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
+
+# Define the mapping from source AreaPaths to target AreaPaths
+$areaPathMap = @{
+    "$($sourceOrg)\\$($sourceArea)" = "$($targetProject)\\$($targetArea)"
+}
+
+function MapAreaPath {
+    param (
+        [string]$sourceAreaPath,
+        [hashtable]$areaPathMap
+    )
+
+    # Check if the source AreaPath exists in the map
+    if ($areaPathMap.ContainsKey($sourceAreaPath)) {
+        return $areaPathMap[$sourceAreaPath]
+    } else {
+        # Return source if no mapping is found
+        return $sourceAreaPath
+    }
+}
 
 function Escape-JsonString {
     param (
@@ -95,7 +116,8 @@ function CloneWorkItem {
         [string]$orgUrl,
         [string]$targetProject,
         [hashtable]$headers,
-        [psobject]$workItem
+        [psobject]$workItem,
+        [hashtable]$areaPathMap  # Pass the mapping for area paths
     )
     $WorkItemType = $workItem.fields.'System.WorkItemType'
 
@@ -114,11 +136,21 @@ function CloneWorkItem {
 
     )
 
+    # Handling AreaPath mapping
+    $mappedAreaPath = MapAreaPath -sourceAreaPath $workItem.fields.'System.AreaPath' -areaPathMap $areaPathMap
+
     $fieldNamesNotIncludes = @("Kanban.Column")
 
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
 
+    # Prepare body with mapped AreaPath
+    $body += @{
+        "op"    = "add"
+        "path"  = "/fields/System.AreaPath"
+        "value" = $mappedAreaPath
+    }
+    
     # Loop through all fields in the source work item and prepare them for the new work item
     foreach ($field in $workItem.fields.PSObject.Properties) {
         $includeField = $true
@@ -279,7 +311,7 @@ if ($workItems) {
         #$newWorkItemResponse = Create-WorkItem $wi
         # Clone the work item
         if ($wi) {
-            $newWorkItem = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi
+            $newWorkItem = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
         }
 
         if ($newWorkItemResponse.id) {
