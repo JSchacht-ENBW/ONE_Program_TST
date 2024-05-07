@@ -136,7 +136,7 @@ function CloneWorkItem {
             }
         }
 
-        if ($field.Name -notin $nonWritableFields) {
+        if ($includeField) {
             $body += @{
                 "op"    = "add"
                 "path"  = "/fields/$($field.Name)"
