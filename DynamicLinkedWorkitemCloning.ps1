@@ -42,7 +42,7 @@ function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
     #$WorkItemType = "Feature"
 
-    $uri = $UriOrganization + "/" + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $UriOrganization  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     echo $uri
 
     # Define default values for required fields to ensure they are not null
@@ -100,7 +100,7 @@ function CloneWorkItem {
     )
     $WorkItemType = $workItem.fields.'System.WorkItemType'
 
-    $uri = $orgUrl + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $orgUrl + "/" + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
 
     # Loop through all fields in the source work item and prepare them for the new work item
@@ -246,7 +246,7 @@ if ($workItems) {
         #$newWorkItemResponse = Create-WorkItem $wi
         # Clone the work item
         if ($wi) {
-            $newWorkItem = CloneWorkItem -orgUrl $baseUri -targetProject $targetProject -headers $headers -workItem $wi
+            $newWorkItem = CloneWorkItem -orgUrl $$UriOrganization -targetProject $targetProject -headers $headers -workItem $wi
         }
 
         if ($newWorkItemResponse.id) {
