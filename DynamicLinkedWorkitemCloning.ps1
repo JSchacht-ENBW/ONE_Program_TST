@@ -161,14 +161,14 @@ $headers = @{
 $allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
 foreach ($item in $allDetails) {
-    Write-Host "Work Item ID: $($item.id), Title: $($item.fields.'System.Title')"
+    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title')"
 }
 
 # Main script execution
 #$workItems = Get-WorkItems
 $workItems = $allDetails
 if ($workItems) {
-    foreach ($wi in $workItems.value) {
+    foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
