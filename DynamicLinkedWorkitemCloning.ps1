@@ -42,7 +42,7 @@ function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
     #$WorkItemType = "Feature"
 
-    $uri = $UriOrganization + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $UriOrganization + "/" + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     echo $uri
 
     # Define default values for required fields to ensure they are not null
