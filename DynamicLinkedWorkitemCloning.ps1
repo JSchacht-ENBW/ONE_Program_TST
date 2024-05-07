@@ -196,6 +196,9 @@ function CloneWorkItem {
 
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
+    Write-Host "mappedAreaPath:$mappedAreaPath"
+
+
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
         Write-Host "Successfully created new work item with ID: $($response.id)"
