@@ -97,7 +97,7 @@ function CloneWorkItem {
         "value" = $targetProject  # Adjust according to your logic or mappings
     }
 
-    foreach ($field in $workItem.fields.PSObject.Properties.Name) {
+    foreach ($field in  $workItem.fields.PSObject.Properties) {
         $includeField = $true
 
         # Check against non-writable fields list
