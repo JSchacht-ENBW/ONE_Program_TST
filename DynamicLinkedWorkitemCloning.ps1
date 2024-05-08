@@ -121,7 +121,7 @@ function CloneWorkItem {
         }
     }
 
-    $jsonBody = $body | ConvertTo-Json -Depth 10 Commpress
+    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
