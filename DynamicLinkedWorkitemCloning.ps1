@@ -222,7 +222,7 @@ if ($workItems) {
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
-                    Write-Host "Linked url : $link.url  LinkSourceId = $link.attributes.SourceWorkitemId"
+                    Write-Host "Linked url : $link.url  LinkSourceId = $link.attributes"
                     # Check if the link's target work item ID is in the idMapping table
                     if ($link.attributes.SourceWorkitemId -match '/(\d+)$') {  # This regex extracts the ID from the URL
                         $linkedWorkItemId = $Matches[1]
