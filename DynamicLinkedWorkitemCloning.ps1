@@ -226,10 +226,12 @@ if ($workItems) {
             foreach ($wi in $workItems) {
                 if ($wi.relations -and $idMapping.ContainsKey($wi.id)) {
                     foreach ($link in $wi.relations) {
+                        if ($link.attributes.id) {
                         if ($idMapping.ContainsKey($link.attributes.id)) {
                             # Here you would call a function to update the link to point to the new ID
                             UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -oldId $wi.id -newId $idMapping[$wi.id] -newLinkedId $idMapping[$link.attributes.id]
-                        }
+                        }else {
+                            Write-Host "Failed to create new work item link. $($link)"}
                     }
                 }
             }
