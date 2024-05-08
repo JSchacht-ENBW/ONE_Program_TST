@@ -21,19 +21,19 @@ $UriOrganization = "https://dev.azure.com/$OrganizationName/"
 $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
-
 # Function to create a work item in the target project
 function Create-WorkItem($workItem) {
     $WorkItemType = $workItem.fields.'System.WorkItemType'
     #$WorkItemType = "Feature"
 
-    $uri = $UriOrganization + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $UriOrganization  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     echo $uri
 
     # Define default values for required fields to ensure they are not null
     $WorkItemTitle = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
+    $WorkItemTitle = Escape-JsonString -inputString $WorkItemTitle
     $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
-    $description = $workItem.fields.'System.Description'
+    #$description = $workItem.fields.'System.Description'
 
     $body="[
     {
@@ -49,7 +49,6 @@ function Create-WorkItem($workItem) {
         Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
         ContentType = "application/json-patch+json"
     }
-
 
 
     try {
