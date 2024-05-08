@@ -14,7 +14,7 @@ steps:
 - task: PowerShell@2
   inputs:
     targetType: 'filePath'
-    filePath: 'DynamicLinkedWorkitemCloning.ps1'
+    filePath: 'DynamicLinkedWorkitemCloning_StaticLinks.ps1'
     arguments: '-Organization "enbw" -Project "ONE! Program_TST" -PAT "$(PAT PowerBi)"'
     pwsh: true
   displayName: 'Run Azure DevOps PowerShell Script'
