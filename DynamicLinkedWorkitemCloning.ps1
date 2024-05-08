@@ -81,7 +81,7 @@ function CloneWorkItem {
 
     )
 
-    $fieldNamesNotIncludes = @("Kanban.Column")
+    $fieldNamesNotIncludes = @("Kanban.Column","System.IterationLevel","System.AreaLevel")
 
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
