@@ -219,7 +219,7 @@ if ($workItems) {
         
         if ($newWorkItem.id) {
             $newId = $newWorkItem.id
-            Write-Host "New work item created successfully with ID: $($$newId)"
+            Write-Host "New work item created successfully with ID: $($newId)"
             $idMapping[$wi.id] = $newId
 
             # Adjust links to point to new IDs
