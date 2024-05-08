@@ -86,15 +86,16 @@ function CloneWorkItem {
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
     $body = @()
 
-    # AreaPath and IterationPath handling
+    # Prepare body with mapped AreaPath
     $body += @{
         "op"    = "add"
         "path"  = "/fields/System.AreaPath"
-        "value" = $targetProject  # Adjust according to your logic or mappings
-    }, @{
+        "value" = $targetProject
+    }
+       $body += @{
         "op"    = "add"
         "path"  = "/fields/System.IterationPath"
-        "value" = $targetProject  # Adjust according to your logic or mappings
+        "value" = $targetProject
     }
 
     foreach ($field in  $workItem.fields.PSObject.Properties) {
