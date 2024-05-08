@@ -73,9 +73,7 @@ function CloneWorkItem {
         "System.AreaId", "System.IterationId", "System.WorkItemType", 
         "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
         "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
-         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_System.ExtensionMarker" , "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column",
-         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column.Done",
-         "System.BoardColumn",
+         "System.BoardColumn","System.NodeName",
          "Microsoft.VSTS.Common.StateChangeDate",
          "System.TeamProject", "System.AreaPath", "System.IterationPath"
 
