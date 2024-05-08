@@ -74,14 +74,14 @@ function CloneWorkItem {
         "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
         "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
          "System.BoardColumn","System.NodeName", "System.AuthorizedAs", "System.CommentCount"
-         "Microsoft.VSTS.Common.StateChangeDate",
+         "Microsoft.VSTS.Common.StateChangeDate", "Microsoft.VSTS.Common.StackRank"
          "System.TeamProject", "System.AreaPath", "System.IterationPath"
 
     )
 
     $fieldNamesNotIncludes = @("Kanban.Column","System.IterationLevel","System.AreaLevel", "System.ExtensionMarker")
 
-    $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=6.0"
     $body = @()
 
     # Prepare body with mapped AreaPath
