@@ -205,41 +205,70 @@ foreach ($item in $allDetails) {
 $idMapping = @{}
 
 # Main script execution
+# Main script execution
 if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
 
-         # Attempt to create a new work item in the target project using the existing work item's details
-        #$newWorkItemResponse = Create-WorkItem $wi
-        # Clone the work item
-        if ($wi) {
-            $newWorkItem = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
-        }
-        
-        if ($newWorkItem.id) {
-            $newId = $newWorkItem.id
-            Write-Host "New work item created successfully with ID: $($newId)"
+        # Attempt to create a new work item in the target project using the existing work item's details
+        $newWorkItemResponse = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
+
+        if ($newWorkItemResponse) {
+            $newId = $newWorkItemResponse
+            Write-Host "New work item created successfully with ID: $newId"
             $idMapping[$wi.id] = $newId
 
-            # Adjust links to point to new IDs
-            foreach ($wi in $workItems) {
-                if ($wi.relations -and $idMapping.ContainsKey($wi.id)) {
-                    foreach ($link in $wi.relations) {
-                        if ($link.attributes.id) {
-                            if ($idMapping.ContainsKey($link.attributes.id)) {
-                                # Here you would call a function to update the link to point to the new ID
-                                UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -oldId $wi.id -newId $idMapping[$wi.id] -newLinkedId $idMapping[$link.attributes.id]
-                        } else {
-                        Write-Host "Failed to create new work item link. $($link)"
+            # Now handle the cloning of links, adjusting them to point to the newly cloned work items
+            if ($wi.relations) {
+                foreach ($link in $wi.relations) {
+                    # Check if the link's target work item ID is in the idMapping table
+                    if ($link.url -match '/(\d+)$') {  # This regex extracts the ID from the URL
+                        $linkedWorkItemId = $Matches[1]
+                        if ($idMapping.ContainsKey($linkedWorkItemId)) {
+                            # Clone the link but update the target to the new cloned work item ID
+                            $newLinkedId = $idMapping[$linkedWorkItemId]
+                            UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $newId -linkedWorkItemId $newLinkedId -linkType $link.rel
                         }
                     }
                 }
             }
-            Write-Host "Mapped old ID $($wi.id) to new ID $newId"
         } else {
             Write-Host "Failed to create new work item. $($newWorkItemResponse)"
         }
     }
-} 
+} else {
+    Write-Host "No work items to process."
+}
 
+# Function to update links between work items
+function UpdateLink {
+    param (
+        [string]$orgUrl,
+        [string]$targetProject,
+        [hashtable]$headers,
+        [int]$workItemId,
+        [int]$linkedWorkItemId,
+        [string]$linkType
+    )
+    $uri = "$orgUrl/$targetProject/_apis/wit/workitems/$workItemId"
+    $body = @{
+        "op" = "add"
+        "path" = "/relations/-"
+        "value" = @{
+            "rel" = $linkType
+            "url" = "$orgUrl/$targetProject/_apis/wit/workitems/$linkedWorkItemId"
+            "attributes" = @{
+                "comment" = "Link cloned to new work item"
+            }
+        }
+    }
+
+    $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
+        Write-Host "Link updated successfully between $workItemId and $linkedWorkItemId"
+    } catch {
+        Write-Host "Failed to update link: $($_.Exception.Message)"
+    }
+}
