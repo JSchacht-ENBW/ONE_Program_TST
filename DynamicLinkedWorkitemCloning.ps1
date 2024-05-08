@@ -194,38 +194,18 @@ $headers = @{
     "Content-Type" = "application/json"
 }
 
-$allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
-
 # Retrieve all work items details
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
+
+foreach ($item in $allDetails) {
+    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title'), AreaPath: $($item.fields.'System.AreaPath')"
+}
 
 # Dictionary to map old IDs to new IDs
 $idMapping = @{}
 
-# Clone work items and store new IDs
-foreach ($wi in $workItems) {
-    $newId = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi
-    if ($newId) {
-        $idMapping[$wi.id] = $newId
-        Write-Host "Mapped old ID $($wi.id) to new ID $newId"
-    }
-}
-
-# Adjust links to point to new IDs
-foreach ($wi in $workItems) {
-    if ($wi.relations -and $idMapping.ContainsKey($wi.id)) {
-        foreach ($link in $wi.relations) {
-            if ($idMapping.ContainsKey($link.attributes.id)) {
-                # Here you would call a function to update the link to point to the new ID
-                UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -oldId $wi.id -newId $idMapping[$wi.id] -newLinkedId $idMapping[$link.attributes.id]
-            }
-        }
-    }
-}
 # Main script execution
-#$workItems = Get-WorkItems
-$workItems = $allDetails
-if ($false) {
+if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
@@ -236,9 +216,24 @@ if ($false) {
         if ($wi) {
             $newWorkItem = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
         }
+        
+        if ($newWorkItem.id) {
+            $newId = $newWorkItem.id
+            Write-Host "New work item created successfully with ID: $($$newId)"
+            $idMapping[$wi.id] = $newId
 
-        if ($newWorkItemResponse.id) {
-            Write-Host "New work item created successfully with ID: $($newWorkItemResponse.id)"
+            # Adjust links to point to new IDs
+            foreach ($wi in $workItems) {
+                if ($wi.relations -and $idMapping.ContainsKey($wi.id)) {
+                    foreach ($link in $wi.relations) {
+                        if ($idMapping.ContainsKey($link.attributes.id)) {
+                            # Here you would call a function to update the link to point to the new ID
+                            UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -oldId $wi.id -newId $idMapping[$wi.id] -newLinkedId $idMapping[$link.attributes.id]
+                        }
+                    }
+                }
+            }
+            Write-Host "Mapped old ID $($wi.id) to new ID $newId"
         } else {
             Write-Host "Failed to create new work item. $($newWorkItemResponse)"
         }
