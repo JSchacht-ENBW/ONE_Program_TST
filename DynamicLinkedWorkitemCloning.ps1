@@ -56,58 +56,7 @@ function Escape-JsonString {
 }
 
 
-# Function to create a work item in the target project
-function Create-WorkItem($workItem) {
-    $WorkItemType = $workItem.fields.'System.WorkItemType'
-    #$WorkItemType = "Feature"
 
-    $uri = $UriOrganization  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
-    echo $uri
-
-    # Define default values for required fields to ensure they are not null
-    $WorkItemTitle = if ($workItem.fields.'System.Title') { $workItem.fields.'System.Title' } else { "Default Title" }
-    $WorkItemTitle = Escape-JsonString -inputString $WorkItemTitle
-    $state = if ($workItem.fields.'System.State') { $workItem.fields.'System.State' } else { "New" }
-    #$description = $workItem.fields.'System.Description'
-
-    $body="[
-    {
-        `"op`": `"add`",
-        `"path`": `"/fields/System.Title`",
-        `"value`": `"$($WorkItemTitle)`"
-    }
-    ]"
-
-
-    # Headers for authentication
-    $headers = @{
-        Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
-        ContentType = "application/json-patch+json"
-    }
-
-
-    try {
-        $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
-        Write-Host "Work item created successfully: $($response.id)"
-        return $response
-    } catch {
-        Write-Host "Request failed with the following details:"
-        Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
-        Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
-        Write-Host "Body: $body"
-        Write-Host "URI: $uri"
-
-        # Check if the content can be converted to JSON
-        try {
-            $content = $_.Exception.Response.Content | ConvertFrom-Json
-            Write-Host "Response Content: $($content)"
-        } catch {
-            Write-Host "Raw Response Content: $($_.Exception.Response.Content)"
-        }
-
-        return $null
-    }
-}
 
 function CloneWorkItem {
     param (
@@ -215,33 +164,6 @@ function CloneWorkItem {
     }
 }
 
-
-# Function to get all work items from the source project and area
-function Get-WorkItems {
-    $wiql = @{
-        "query" = "SELECT [System.Id], [System.WorkItemType],[System.Title], [System.State], [System.AreaPath] , [System.Description] FROM WorkItems WHERE [System.AreaPath] = '$sourceArea'"
-    }
-
-    # Headers for authentication
-    $headers = @{
-        "Authorization" = "Basic $( [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT")) )"
-        "Content-Type" = "application/json"
-    }
-
-    $uri = "$baseUri/$sourceProject/_apis/wit/wiql?api-version=6.0"
-    $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
-
-    # Check if there are work items in the response and retrieve them
-    if ($response -and $response.workItems) {
-        $ids = $response.workItems.id -join ","
-        $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems?ids=$ids&`$expand=fields&api-version=6.0"
-        $workItems = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
-        return $workItems
-    } else {
-        Write-Host "No work items found."
-        return @()  # Return an empty array if no work items are found
-    }
-}
 
 function Get-AllWorkItemDetails {
     param (
