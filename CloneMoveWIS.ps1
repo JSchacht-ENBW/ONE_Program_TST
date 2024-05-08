@@ -75,6 +75,7 @@ function Create-WorkItem($workItem) {
 }
 
 
+
 # Function to get all work items from the source project and area
 function Get-WorkItems {
     $wiql = @{
@@ -101,6 +102,7 @@ function Get-WorkItems {
         return @()  # Return an empty array if no work items are found
     }
 }
+
 
 # Main script execution
 $workItems = Get-WorkItems
