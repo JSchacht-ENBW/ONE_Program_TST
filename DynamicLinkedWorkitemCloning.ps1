@@ -56,98 +56,41 @@ function Escape-JsonString {
 }
 
 
-
-
 function CloneWorkItem {
     param (
         [string]$orgUrl,
         [string]$targetProject,
         [hashtable]$headers,
-        [psobject]$workItem,
-        [hashtable]$areaPathMap  # Pass the mapping for area paths
+        [psobject]$workItem
     )
+
     $WorkItemType = $workItem.fields.'System.WorkItemType'
-
-    # Define non-writable fields
-    $nonWritableFields = @(
-        "System.Id", "System.Rev", "System.CreatedDate", "System.CreatedBy",
-        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate",
-        "System.AreaId", "System.IterationId", "System.WorkItemType", 
-        "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
-        "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
-         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_System.ExtensionMarker" , "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column",
-         "WEF_A6AE366B767347D78F18D7B9B9FEF8B5_Kanban.Column.Done",
-         "System.BoardColumn",
-         "Microsoft.VSTS.Common.StateChangeDate",
-         "System.TeamProject", "System.AreaPath", "System.IterationPath"
-
-    )
-
-
-    $fieldNamesNotIncludes = @("Kanban.Column")
-
-    $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=5.1"
+    $uri = "$orgUrl/$targetProject/_apis/wit/workitems/`$$WorkItemType?api-version=5.1"
     $body = @()
 
-    # Prepare body with mapped AreaPath
+    # AreaPath and IterationPath handling
     $body += @{
         "op"    = "add"
         "path"  = "/fields/System.AreaPath"
-        "value" = $targetProject
-    }
-       $body += @{
+        "value" = $targetProject  # Adjust according to your logic or mappings
+    }, @{
         "op"    = "add"
         "path"  = "/fields/System.IterationPath"
-        "value" = $targetProject
+        "value" = $targetProject  # Adjust according to your logic or mappings
     }
 
-    # Loop through all fields in the source work item and prepare them for the new work item
-    foreach ($field in $workItem.fields.PSObject.Properties) {
-        $includeField = $true
-
-        # Check against non-writable fields list
-        if ($field.Name -in $nonWritableFields) {
-            $includeField = $false
-        }
-
-        # Check against field names that should not be included
-        foreach ($excludeSubstring in $fieldNamesNotIncludes) {
-            if ($field.Name.Contains($excludeSubstring)) {
-                $includeField = $false
-                break
-            }
-        }
-
-        if ($includeField) {
+    # Copy fields excluding non-writable and specific pattern fields
+    foreach ($field in $workItem.fields.PSObject.Properties.Name) {
+        if (-not $nonWritableFields.Contains($field) -and -not $fieldNamesNotIncludes.Any({ $field.Contains($_) })) {
             $body += @{
                 "op"    = "add"
-                "path"  = "/fields/$($field.Name)"
-                "value" = $field.Value
+                "path"  = "/fields/$field"
+                "value" = $workItem.fields.$field
             }
         }
     }
 
-    # Include relationships if necessary
-    if ($workItem.relations) {
-        foreach ($link in $workItem.relations) {
-            $body += @{
-                "op" = "add"
-                "path" = "/relations/-"
-                "value" = @{
-                    "rel" = $link.rel
-                    "url" = $link.url
-                    "attributes" = @{
-                        "comment" = "Cloned from work item $($workItem.id)"
-                    }
-                }
-            }
-        }
-    }
-
-    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
-
-    Write-Host "mappedAreaPath:$mappedAreaPath"
-
+    $jsonBody = $body | ConvertTo-Json -Depth 10
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $body
@@ -222,14 +165,36 @@ $headers = @{
 
 $allDetails = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
-foreach ($item in $allDetails) {
-    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title'), AreaPath: $($item.fields.'System.AreaPath')"
+# Retrieve all work items details
+$workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
+
+# Dictionary to map old IDs to new IDs
+$idMapping = @{}
+
+# Clone work items and store new IDs
+foreach ($wi in $workItems) {
+    $newId = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi
+    if ($newId) {
+        $idMapping[$wi.id] = $newId
+        Write-Host "Mapped old ID $($wi.id) to new ID $newId"
+    }
 }
 
+# Adjust links to point to new IDs
+foreach ($wi in $workItems) {
+    if ($wi.relations -and $idMapping.ContainsKey($wi.id)) {
+        foreach ($link in $wi.relations) {
+            if ($idMapping.ContainsKey($link.attributes.id)) {
+                # Here you would call a function to update the link to point to the new ID
+                UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -oldId $wi.id -newId $idMapping[$wi.id] -newLinkedId $idMapping[$link.attributes.id]
+            }
+        }
+    }
+}
 # Main script execution
 #$workItems = Get-WorkItems
 $workItems = $allDetails
-if ($workItems) {
+if ($false) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
@@ -247,7 +212,5 @@ if ($workItems) {
             Write-Host "Failed to create new work item. $($newWorkItemResponse)"
         }
     }
-} else {
-    Write-Host "No work items to process."
-}
+} 
 
