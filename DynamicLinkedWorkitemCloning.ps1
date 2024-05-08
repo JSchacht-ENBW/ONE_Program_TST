@@ -223,6 +223,7 @@ if ($workItems) {
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
                     $originalLinkedId = $link.attributes.'System.Id'  # Assuming ID is directly available under attributes
+                    Write-Host "Original linked New work item: $originalLinkedId"
                     if ($idMapping.ContainsKey($originalLinkedId)) {
                         $newLinkedId = $idMapping[$originalLinkedId]
                         UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $newId -linkedWorkItemId $newLinkedId -linkType $link.rel
