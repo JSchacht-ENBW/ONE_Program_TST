@@ -79,14 +79,26 @@ function CloneWorkItem {
         "value" = $targetProject  # Adjust according to your logic or mappings
     }
 
-    # Copy fields excluding non-writable and specific pattern fields
-    foreach ($field in $workItem.fields.PSObject.Properties.Name) {
-        if (-not $nonWritableFields.Contains($field) -and -not $fieldNamesNotIncludes.Any({ $field.Contains($_) })) {
-            $body += @{
-                "op"    = "add"
-                "path"  = "/fields/$field"
-                "value" = $workItem.fields.$field
-            }
+    $includeField = $true
+
+    # Check against non-writable fields list
+    if ($field.Name -in $nonWritableFields) {
+        $includeField = $false
+    }
+
+    # Check against field names that should not be included
+    foreach ($excludeSubstring in $fieldNamesNotIncludes) {
+        if ($field.Name.Contains($excludeSubstring)) {
+            $includeField = $false
+            break
+        }
+    }
+
+    if ($includeField) {
+        $body += @{
+            "op"    = "add"
+            "path"  = "/fields/$($field.Name)"
+            "value" = $field.Value
         }
     }
 
