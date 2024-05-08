@@ -132,7 +132,7 @@ function CloneWorkItem {
         Write-Host "Response:$response"
         Write-Host "mappedAreaPath:$mappedAreaPath"
         Write-Host "Target Project: $targetProject"
-        Write-Host "Request Body: $jsonBody"
+        Write-Host "Request Body: $body"
         Write-Host "URI: $uri"
         return $null
     }
