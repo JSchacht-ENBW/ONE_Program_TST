@@ -215,7 +215,7 @@ if ($workItems) {
         $newWorkItemResponse = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
 
         if ($newWorkItemResponse) {
-            $newId = $newWorkItemResponse
+            $newId = $newWorkItemResponse.id
             Write-Host "New work item found with ID: $newId"
             $idMapping[$wi.id] = $newId
 
