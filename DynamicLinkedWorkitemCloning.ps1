@@ -221,11 +221,21 @@ if ($workItems) {
 
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
-                foreach ($link in $wi.relations) {
-                    $originalLinkedId = $link.attributes.'System.Id'  # Assuming ID is directly available under attributes
-                    Write-Host "Original linked New work item: $originalLinkedId"
-                    if ($idMapping.ContainsKey($originalLinkedId)) {
-                        $newLinkedId = $idMapping[$originalLinkedId]
+                # Extract the source item ID from the URL
+                if ($link.url -match '_apis/wit/workItems/(\d+)$') {  # This regex extracts the ID from the URL
+                    $linkedWorkItemId = $Matches[1]
+
+                    # Compare extracted ID with the current work item ID
+                    if ($linkedWorkItemId -eq $wi.id) {
+                        Write-Host "Link refers back to the same work item."
+                    } else {
+                        Write-Host "Link refers to a different work item with ID: $linkedWorkItemId"
+                    }
+
+                    # Check if the link's target work item ID is in the idMapping table
+                    if ($idMapping.ContainsKey($linkedWorkItemId)) {
+                        # Update the link to point to the new cloned work item ID
+                        $newLinkedId = $idMapping[$linkedWorkItemId]
                         UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $newId -linkedWorkItemId $newLinkedId -linkType $link.rel
                     }
                 }
