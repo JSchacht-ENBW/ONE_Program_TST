@@ -141,7 +141,7 @@ function CloneWorkItem {
                     }
                 }
             }
-        $linkrel = $link.rel.    
+        $linkrel = $link.rel    
         Write-Host "linkerelation:$linkrel"     
         }
     }
