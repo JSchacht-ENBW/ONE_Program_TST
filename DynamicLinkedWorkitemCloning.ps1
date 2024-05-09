@@ -55,6 +55,14 @@ function Escape-JsonString {
     return $escapedString
 }
 
+function Encode-Html {
+    param (
+        [string]$HtmlContent
+    )
+
+    # Using .NET WebUtility class to HTML encode the content
+    return [System.Net.WebUtility]::HtmlEncode($HtmlContent)
+}
 
 function CloneWorkItem {
     param (
@@ -113,10 +121,17 @@ function CloneWorkItem {
         }
 
         if ($includeField) {
+            $value = $field.Value
+
+            # Check if the field is the Description or any other field that may contain HTML
+            if ($field.Name -eq "System.Description") {
+                $value = Encode-Html -HtmlContent $value
+            }
+
             $body += @{
                 "op"    = "add"
                 "path"  = "/fields/$($field.Name)"
-                "value" = $field.Value
+                "value" = $value
             }
         }
     }
