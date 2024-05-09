@@ -141,8 +141,8 @@ function CloneWorkItem {
                     }
                 }
             }
-        $linkattr = $link.attributes    
-        Write-Host "mappedAreaPath:$linkattr"     
+        $linkrel = $link.rel.    
+        Write-Host "linkerelation:$linkrel"     
         }
     }
 
