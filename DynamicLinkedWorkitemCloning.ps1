@@ -131,8 +131,7 @@ function CloneWorkItem {
             # Check if the field is the Description or any other field that may contain HTML
             if ($field.Name -eq "System.State") {
                 if ($value -eq "Closed") {
-
-                $value = "Done""
+                $value = "Done"}
             }
 
             $body += @{
