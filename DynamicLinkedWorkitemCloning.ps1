@@ -338,7 +338,7 @@ if ($workItems) {
             Write-Host "Work Item ID: $($wi.id) has idmapping to $($idMapping[$wi.id])
         
         } else {
-            Write-Host "no if mapping for original workitem . $($wi.id])"
+            Write-Host "no if mapping for original workitem . $($wi.id))"
         }
     }
 } else {
