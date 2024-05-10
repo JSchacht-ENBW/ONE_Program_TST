@@ -298,7 +298,7 @@ if ($workItems) {
 
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
-                foreach ($link in $workItem.relations) {
+                foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
                     Write-Host "linkerelation:$linkrel"     
                     # Extract the source item ID from the URL
