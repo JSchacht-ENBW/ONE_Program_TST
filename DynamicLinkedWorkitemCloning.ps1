@@ -335,7 +335,7 @@ if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         if ($idMapping[$wi.id]) {
-            Write-Host "Work Item ID: $($wi.id) has idmapping to $idMapping[$wi.id]
+            Write-Host "Work Item ID: $($wi.id) has idmapping to $($idMapping[$wi.id])
         
         } else {
             Write-Host "no if mapping for original workitem . $($wi.id])"
