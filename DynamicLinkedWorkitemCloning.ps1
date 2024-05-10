@@ -163,7 +163,7 @@ function CloneWorkItem {
 
             }
 
-            if ($valueset -eq $true) {
+            if ($valueset -eq $false) {
                 $body += @{
                     "op"    = "add"
                     "path"  = "/fields/$($field.Name)"
