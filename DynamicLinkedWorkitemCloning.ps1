@@ -383,7 +383,7 @@ if ($workItems) {
                     $linkrel = $link.rel    
 
                     $oldtargetid = WorkItemIdFromUrl -url $link.url
-                    $newtargetid = $idMapping[$($oldtargetid)] 
+                    $newtargetid = $idMapping["$($oldtargetid)"] 
                     Write-Host "------ linkerelation:$linkrel to be transposed from $($oldtargetid) to $($newtargetid)"
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
