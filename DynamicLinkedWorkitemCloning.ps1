@@ -331,7 +331,8 @@ function Get-WorkItemIdFromUrl {
     }
 }
 
-Write-Host "Full ID Map : $($idMapping)"
+$JsonIDmap = $idMapping | ConvertTo-Json -Depth 10 -Compress
+Write-Host "Full ID Map : $($JsonIDmap)"
 
 if ($workItems) {
     foreach ($wi in $workItems) {
