@@ -295,7 +295,7 @@ $headers = @{
 $processedItemCount = 0
 
 # Retrieve all work items details
-Write-Host "------ START RETRIEVING SOURCE ITEMS "
+Write-Host "-- START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 Write-Host "---- Retrieved $($workItems.count) work items from sourceProject $sourceProject sourceArea $sourceArea"
 
@@ -304,25 +304,25 @@ $idMapping = @{}
 
 # Main script execution
 # Main script execution
-Write-Host "------ START CLONING SOURCE ITEMS "
+Write-Host "-- START CLONING SOURCE ITEMS "
 if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "---- START CLONING SOURCE ITEM "
-        Write-Host "-- Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
+        Write-Host "------ Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
         # Attempt to create a new work item in the target project using the existing work item's details
         $newWorkItemResponse = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
 
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
-            Write-Host "-- New work item found with ID: $newId"
+            Write-Host "------ New work item found with ID: $newId"
             $idMapping[$wi.id] = $newId
 
             Write-Host "---- MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
 
             
         } else {
-            Write-Host "-- Failed to create new work item. $($newWorkItemResponse)"
+            Write-Host "------ Failed to create new work item. $($newWorkItemResponse)"
         }
         Write-Host "---- END CLONING SOURCE ITEM "
     }
@@ -341,10 +341,10 @@ foreach ($key in $idMapping.Keys) {
 
 # Now convert this dictionary to JSON
 $JsonIDmap = $stringKeyDictionary | ConvertTo-Json -Depth 10 -Compress
-Write-Host "------ RETRIEVED ID MAP : $($JsonIDmap)"
+Write-Host "-- RETRIEVED ID MAP : $($JsonIDmap)"
 
 
-Write-Host "------ START RELINKING CLONED RELATIONS"
+Write-Host "-- START RELINKING CLONED RELATIONS"
 
 if ($workItems) {
     foreach ($wi in $workItems) {
@@ -352,26 +352,26 @@ if ($workItems) {
         Write-Host "---- START RELINKING OLD WORKITEM $($wi.id)"
         $mappedids = $idMapping[$wi.id]
         if ($mappedids) {
-            Write-Host "-- Work Item ID: $($wi.id) has idmapping to $($mappedids)"
+            Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
-                    Write-Host "-- linkerelation:$linkrel"
+                    Write-Host "------ linkerelation:$linkrel"
                     $oldtargetid = WorkItemIdFromUrl -url $link.url
                     $newtargetid = $idMapping[$oldtargetid]
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
-                        Write-Host "-- Link changes for source and target $($mappedids) to  $($newtargetid)"
+                        Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
                         UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
                     }
                     else {
-                            Write-Host "-- no new targetid for link $($mappedids) to  $($newtargetid)"
+                            Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
                     }
                 }
             }
         } else {
-            Write-Host "-- No ID mapping for original work item: $($wi.id)"
+            Write-Host "------ No ID mapping for original work item: $($wi.id)"
         }
     Write-Host "---- END RELINKING OLD WORKITEM $($wi.id)"
     }
@@ -379,7 +379,7 @@ if ($workItems) {
     Write-Host "---- No work items to process."
 }
 
-Write-Host "------ END RELINKING CLONED RELATIONS"
+Write-Host "-- END RELINKING CLONED RELATIONS"
    
 # Function to update links between work items
 function UpdateLink {
@@ -407,8 +407,8 @@ function UpdateLink {
     $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
-        Write-Host "-- Link updated successfully between $workItemId and $linkedWorkItemId"
+        Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
     } catch {
-        Write-Host "-- Failed to update link: $($_.Exception.Message)"
+        Write-Host "------Failed to update link: $($_.Exception.Message)"
     }
 }
