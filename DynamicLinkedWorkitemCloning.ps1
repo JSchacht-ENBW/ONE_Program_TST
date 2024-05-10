@@ -298,6 +298,21 @@ if ($workItems) {
             $idMapping[$wi.id] = $newId
             Write-Host "relations:$($wi.relations)" 
 
+            
+        } else {
+            Write-Host "Failed to create new work item. $($newWorkItemResponse)"
+        }
+    }
+} else {
+    Write-Host "No work items to process."
+}
+
+if ($workItems) {
+    foreach ($wi in $workItems) {
+        # Print each work item's ID and Title (assuming ID is directly under the work item object)
+        $mappedids = $idMapping[$wi.id]
+        if ($mappedids) {
+            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
@@ -323,20 +338,6 @@ if ($workItems) {
                     }
                 }
             }
-        } else {
-            Write-Host "Failed to create new work item. $($newWorkItemResponse)"
-        }
-    }
-} else {
-    Write-Host "No work items to process."
-}
-
-if ($workItems) {
-    foreach ($wi in $workItems) {
-        # Print each work item's ID and Title (assuming ID is directly under the work item object)
-        $mappedids = $idMapping[$wi.id]
-        if ($mappedids) {
-            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)"
         } else {
             Write-Host "No ID mapping for original work item: $($wi.id)"
         }
