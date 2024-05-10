@@ -331,6 +331,8 @@ function Get-WorkItemIdFromUrl {
     }
 }
 
+Write-Host "Full ID Map : $($idMapping)"
+
 if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
