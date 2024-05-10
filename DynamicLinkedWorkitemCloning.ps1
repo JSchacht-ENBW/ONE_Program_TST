@@ -212,25 +212,13 @@ function CloneWorkItem {
 }
 
 function Get-WorkItemIdFromUrl {
-    param (
-        [string]$url
-    )
-
-    try {
-        # Define a regex pattern to match the work item ID in the Azure DevOps URL
-        $pattern = '_apis/wit/workItems/(\d+)$'
-        
-        # Perform regex match to find the work item ID
-        if ($url -match $pattern) {
-            $workItemId = $matches[1]
-            Write-Host "  Extracted Work Item ID: $workItemId"
-            return $workItemId
-        } else {
-            Write-Host "  No valid work item ID found in the URL."
-            return $null
-        }
-    } catch {
-        Write-Host "  n error occurred: $($_.Exception.Message)"
+    param ([string]$url)
+    $pattern = '_apis/wit/workItems/(\d+)$'
+    if ($url -match $pattern) {
+        $workItemId = $matches[1]
+        return [string]$workItemId  # Cast as string to ensure consistency
+    } else {
+        Write-Host "No valid work item ID found in the URL."
         return $null
     }
 }
@@ -319,7 +307,7 @@ if ($workItems) {
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
             Write-Host "---- FINISHED CLONING SOURCE ITEM : $newId"
-            $idMapping[$wi.id] = $newId
+            $idMapping["$wi.id"] = $newId
 
             Write-Host "------ MAPPING : Old $($wi.id) to new $($idMapping[$wi.id]) " 
 
@@ -354,7 +342,7 @@ if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "---- START RELINKING OLD WORKITEM $($wi.id)"
-        $mappedids = $idMapping[$wi.id]
+        $mappedids = $idMapping["$wi.id"]
         if ($mappedids) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
