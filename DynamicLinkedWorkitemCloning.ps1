@@ -80,6 +80,26 @@ function Get-IdentityByDescriptor {
         return $null
     }
 }
+
+function Get-IdentityById {
+    param (
+        [string]$identityId,
+        [hashtable]$headers,
+        [string]$orgUrl
+    )
+
+    # Update the URL to use an endpoint appropriate for querying by identity ID
+    $identityUrl = "$orgUrl/_apis/identities/$identityId?api-version=6.0"
+
+    try {
+        $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
+        return $identity
+    } catch {
+        Write-Host "No valid identity found for ID: $identityId"
+        return $null
+    }
+}
+
 function CloneWorkItem {
     param (
         [string]$orgUrl,
@@ -153,7 +173,7 @@ function CloneWorkItem {
             }
             # Handle identity fields
             if ($field.Name -eq "System.AssignedTo") {
-                $identity = Get-IdentityByDescriptor -descriptor $value.descriptor -headers $headers -orgUrl $orgUrl
+                $identity = Get-IdentityByID -identityId $value.id -headers $headers -orgUrl $orgUrl
                 if ($identity -and !$identity.inactive) {
                     $value = $identity
                     $valueset = $true
