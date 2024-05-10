@@ -115,7 +115,7 @@ function CloneWorkItem {
     # Define non-writable fields
     $nonWritableFields = @(
         "System.Id", "System.Rev", "System.CreatedDate", "System.CreatedBy",
-        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate", "System.ClosedDate","System.ActivatedDate",
+        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate", "Microsoft.VSTS.Common.ClosedDate","Microsoft.VSTS.Common.ActivatedDate",
         "System.AreaId", "System.IterationId", "System.WorkItemType", 
         "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
         "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
