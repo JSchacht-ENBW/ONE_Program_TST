@@ -315,7 +315,7 @@ if ($workItems) {
 
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
-            Write-Host "---- FINISHED CLONING SOURCE ITEM ": $newId"
+            Write-Host "---- FINISHED CLONING SOURCE ITEM : $newId"
             $idMapping[$wi.id] = $newId
 
             Write-Host "---- MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
