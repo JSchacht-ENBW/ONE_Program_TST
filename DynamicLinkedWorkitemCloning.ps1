@@ -197,6 +197,25 @@ function CloneWorkItem {
         }
     }
 
+    # Include relationships if necessary
+    if ($workItem.relations) {
+        foreach ($link in $workItem.relations) {
+            $body += @{
+                "op" = "add"
+                "path" = "/relations/-"
+                "value" = @{
+                    "rel" = $link.rel
+                    "url" = $link.url
+                    "attributes" = @{
+                        "comment" = "Cloned from work item $($workItem.id)"
+                    }
+                }
+            }
+            $linkrel = $link.rel    
+            Write-Host "linkerelation:$linkrel"     
+        }
+    }
+
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
