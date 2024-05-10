@@ -1,9 +1,11 @@
 # Set variables
 $sourceOrg = "enbw"
 $sourceProject = "ONE!"
+$sourceProjectID = "38def788-c6c3-414b-b0e3-b017687f4701"
 $sourceArea = "ONE!\\xx_Sandkasten"  # Use double backslash in PowerShell for correct escaping
 $targetOrg = "enbw"
 $targetProject = "ONE! Program_Dev"
+$targetProjectID = "f7db8333-e29d-4dc4-8c52-cb0249449af2"
 $targetArea = $targetProject
 $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
 
@@ -393,7 +395,7 @@ if ($workItems) {
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
