@@ -127,6 +127,8 @@ function CloneWorkItem {
 
     $fieldNamesNotIncludes = @("Kanban.Column","System.IterationLevel","System.AreaLevel", "System.ExtensionMarker")
 
+    $fieldNamesIndentity = @("System.AssignedTo","Microsoft.VSTS.Common.ActivatedBy","Microsoft.VSTS.Common.ClosedBy")
+
     $uri = $orgUrl  + $targetProject + "/_apis/wit/workitems/$" + $WorkItemType + "?api-version=6.0"
     $body = @()
 
@@ -162,10 +164,6 @@ function CloneWorkItem {
         if ($includeField) {
             $value = $field.Value
 
-            # Check if the field is the Description or any other field that may contain HTML
-            if ($field.Name -eq "System.Description") {
-                #$value = Encode-Html -HtmlContent $value
-            }
 
             # Check if the field is the Description or any other field that may contain HTML
             if ($field.Name -eq "System.State") {
@@ -174,7 +172,7 @@ function CloneWorkItem {
                 $valueset = $true}
             }
             # Handle identity fields
-            if ($field.Name -eq "System.AssignedTo" or $field.Name -eq "Microsoft.VSTS.Common.ActivatedBy" or $field.Name -eq "Microsoft.VSTS.Common.ClosedBy") {
+            if ($field.Name -in $fieldNamesIndentity) {
                 Write-Host "identity value: $($value)"
                 $identityid = $($value.id)
                 Write-Host "identity id: $identityid"
