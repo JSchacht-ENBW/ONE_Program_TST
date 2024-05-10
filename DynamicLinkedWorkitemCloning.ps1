@@ -70,7 +70,7 @@ function Get-IdentityByDescriptor {
         [string]$orgUrl
     )
 
-    $identityUrl = "$orgUrl/_apis/identities?descriptors=$descriptor&api-version=6.0"
+    $identityUrl = "$orgUrl_apis/identities?descriptors=$descriptor&api-version=6.0"
     Write-Host "Identityurl:$identityUrl"
     try {
         $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
@@ -89,7 +89,8 @@ function Get-IdentityById {
     )
 
     # Update the URL to use an endpoint appropriate for querying by identity ID
-    $identityUrl = "$orgUrl/_apis/identities/$identityId?api-version=6.0"
+    $identityUrl = "$orgUrl_apis/identities/$identityId?api-version=6.0"
+    Write-Host "Identityurl:$identityUrl"
 
     try {
         $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
