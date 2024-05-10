@@ -335,7 +335,7 @@ function UpdateLink {
         [int]$linkedWorkItemId,
         [string]$linkType
     )
-    $uri = "$orgUrl/$targetProject/_apis/wit/workitems/$workItemId"
+    $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
     $body = @{
         "op" = "add"
         "path" = "/relations/-"
