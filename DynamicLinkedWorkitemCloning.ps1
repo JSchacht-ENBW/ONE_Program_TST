@@ -172,13 +172,13 @@ function CloneWorkItem {
             # Handle identity fields
             if ($field.Name -in $fieldNamesIndentity) {
                 $identityid = $($value.id)
-                Write-Host "  identity id: $identityid"
+                Write-Host "-------- Found identity id: $identityid"
                 $identity = Get-IdentityByID -identityId $identityid -headers $headers -orgUrl $orgUrl
                 if ($identity -and !$identity.inactive) {
                     $value = $identity
                     $valueset = $true
                 } else {
-                    Write-Host "  Invalid or inactive identity, skipping assignment for System.AssignedTo."
+                    Write-Host "-------- Invalid or inactive identity, skipping assignment for System.AssignedTo."
                     continue
                 }
             }
@@ -197,15 +197,15 @@ function CloneWorkItem {
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
-        Write-Host "---- Successfully cloned new work item with ID: $($response.id)"
+        Write-Host "------ Successfully cloned new work item with ID: $($response.id)"
         return $response
     } catch {
-        Write-Host "  Failed to clone work item: $($_.Exception.Message)"
-        Write-Host "  Response:$response"
-        Write-Host "  mappedAreaPath:$mappedAreaPath"
-        Write-Host "  Target Project: $targetProject"
-        Write-Host "  Request Body: $jsonBody"
-        Write-Host "  URI: $uri"
+        Write-Host "------ Failed to clone work item: $($_.Exception.Message)"
+        Write-Host "       Response:$response"
+        Write-Host "       mappedAreaPath:$mappedAreaPath"
+        Write-Host "       Target Project: $targetProject"
+        Write-Host "       Request Body: $jsonBody"
+        Write-Host "       URI: $uri"
        
         return $null
     }
@@ -271,11 +271,11 @@ function Get-AllWorkItemDetails {
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $allWorkItems += $workItemDetails
             } catch {
-                Write-Host "Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
-                Write-Host "Status Code: $($_.Exception.Response.StatusCode.Value__)"
-                Write-Host "Status Description: $($_.Exception.Response.StatusDescription)"
-                Write-Host "Workitem: $($workItemId)"
-                Write-Host "URI: $($detailUri)"
+                Write-Host "------ Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
+                Write-Host "       Status Code: $($_.Exception.Response.StatusCode.Value__)"
+                Write-Host "       Status Description: $($_.Exception.Response.StatusDescription)"
+                Write-Host "       Workitem: $($workItemId)"
+                Write-Host "       URI: $($detailUri)"
             }
         }
         return $allWorkItems
@@ -295,6 +295,7 @@ $headers = @{
 $processedItemCount = 0
 
 # Retrieve all work items details
+Write-Host "-- "
 Write-Host "-- START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 Write-Host "---- Retrieved $($workItems.count) work items from sourceProject $sourceProject sourceArea $sourceArea"
@@ -304,6 +305,7 @@ $idMapping = @{}
 
 # Main script execution
 # Main script execution
+Write-Host "-- "
 Write-Host "-- START CLONING SOURCE ITEMS "
 if ($workItems) {
     foreach ($wi in $workItems) {
@@ -318,7 +320,7 @@ if ($workItems) {
             Write-Host "---- FINISHED CLONING SOURCE ITEM : $newId"
             $idMapping[$wi.id] = $newId
 
-            Write-Host "---- MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
+            Write-Host "------ MAPPING : Old $($wi.id) to new $($idMapping[$wi.id]) " 
 
             
         } else {
@@ -341,9 +343,10 @@ foreach ($key in $idMapping.Keys) {
 
 # Now convert this dictionary to JSON
 $JsonIDmap = $stringKeyDictionary | ConvertTo-Json -Depth 10 -Compress
+Write-Host "-- "
 Write-Host "-- RETRIEVED ID MAP : $($JsonIDmap)"
 
-
+Write-Host "-- "
 Write-Host "-- START RELINKING CLONED RELATIONS"
 
 if ($workItems) {
@@ -378,7 +381,7 @@ if ($workItems) {
 } else {
     Write-Host "---- No work items to process."
 }
-
+Write-Host "-- "
 Write-Host "-- END RELINKING CLONED RELATIONS"
    
 # Function to update links between work items
