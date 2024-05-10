@@ -343,7 +343,7 @@ if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "---- START RELINKING OLD WORKITEM $($wi.id)"
-        $mappedids = $idMapping["$wi.id"]
+        $mappedids = $idMapping["$($wi.id)"]
         if ($mappedids) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
