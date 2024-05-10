@@ -336,9 +336,9 @@ if ($workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         $mappedids = $idMapping[$wi.id]
         if ($mappedids) {
-            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)
+            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)"
         } else {
-            Write-Host "no if mapping for original workitem . $($wi.id)"
+            Write-Host "No ID mapping for original work item: $($wi.id)"
         }
     }
 } else {
