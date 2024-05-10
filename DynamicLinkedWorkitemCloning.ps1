@@ -200,13 +200,13 @@ function CloneWorkItem {
         Write-Host "Successfully cloned new work item with ID: $($response.id)"
         return $response
     } catch {
-
+        Write-Host "  Failed to clone work item: $($_.Exception.Message)"
         Write-Host "  Response:$response"
         Write-Host "  mappedAreaPath:$mappedAreaPath"
         Write-Host "  Target Project: $targetProject"
         Write-Host "  Request Body: $jsonBody"
         Write-Host "  URI: $uri"
-        Write-Host "Failed to clone work item: $($_.Exception.Message)"
+       
         return $null
     }
 }
@@ -268,6 +268,7 @@ $headers = @{
 }
 
 # Retrieve all work items details
+Write-Host "------ START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
 # Dictionary to map old IDs to new IDs
@@ -275,11 +276,13 @@ $idMapping = @{}
 
 # Main script execution
 # Main script execution
+Write-Host "------ START CLONING SOURCE ITEMS "
 if ($workItems) {
     foreach ($wi in $workItems) {
+        Write-Host "------"
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
-
+        Write-Host "---- START CLONING SOURCE ITEM "
         # Attempt to create a new work item in the target project using the existing work item's details
         $newWorkItemResponse = CloneWorkItem -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItem $wi -areaPathMap $areaPathMap
 
@@ -294,10 +297,12 @@ if ($workItems) {
         } else {
             Write-Host "  Failed to create new work item. $($newWorkItemResponse)"
         }
+        Write-Host "---- END CLONING SOURCE ITEM "
     }
 } else {
     Write-Host "  No work items to process."
 }
+
 
 function Get-WorkItemIdFromUrl {
     param (
@@ -333,12 +338,15 @@ foreach ($key in $idMapping.Keys) {
 $JsonIDmap = $stringKeyDictionary | ConvertTo-Json -Depth 10 -Compress
 Write-Host "Full ID Map : $($JsonIDmap)"
 
+
+Write-Host "------ START RELINKING CLONED RELATIONS "
+
 if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         $mappedids = $idMapping[$wi.id]
         if ($mappedids) {
-            Write-Host "  Work Item ID: $($wi.id) has idmapping to $($mappedids)"
+            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
