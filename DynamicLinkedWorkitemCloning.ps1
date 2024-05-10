@@ -329,6 +329,8 @@ if ($workItems) {
     Write-Host "No work items to process."
 }
 
+
+
 # Function to update links between work items
 function UpdateLink {
     param (
