@@ -128,6 +128,13 @@ function CloneWorkItem {
                 $value = Encode-Html -HtmlContent $value
             }
 
+            # Check if the field is the Description or any other field that may contain HTML
+            if ($field.Name -eq "System.State") {
+                if ($value -eq "Closed") {
+
+                $value = "Done""
+            }
+
             $body += @{
                 "op"    = "add"
                 "path"  = "/fields/$($field.Name)"
