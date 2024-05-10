@@ -71,6 +71,7 @@ function Get-IdentityByDescriptor {
     )
 
     $identityUrl = "$orgUrl/_apis/identities?descriptors=$descriptor&api-version=6.0"
+    Write-Host "Identityurl:$identityUrl"
     try {
         $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
         return $identity
