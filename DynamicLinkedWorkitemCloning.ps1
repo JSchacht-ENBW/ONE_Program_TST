@@ -197,7 +197,7 @@ function CloneWorkItem {
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
-        Write-Host "Successfully cloned new work item with ID: $($response.id)"
+        Write-Host "---- Successfully cloned new work item with ID: $($response.id)"
         return $response
     } catch {
         Write-Host "  Failed to clone work item: $($_.Exception.Message)"
@@ -315,7 +315,7 @@ if ($workItems) {
 
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
-            Write-Host "------ New work item found with ID: $newId"
+            Write-Host "---- FINISHED CLONING SOURCE ITEM ": $newId"
             $idMapping[$wi.id] = $newId
 
             Write-Host "---- MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
