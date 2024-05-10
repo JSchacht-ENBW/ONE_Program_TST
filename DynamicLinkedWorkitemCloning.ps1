@@ -307,6 +307,30 @@ if ($workItems) {
     Write-Host "No work items to process."
 }
 
+function Get-WorkItemIdFromUrl {
+    param (
+        [string]$url
+    )
+
+    try {
+        # Define a regex pattern to match the work item ID in the Azure DevOps URL
+        $pattern = '_apis/wit/workItems/(\d+)$'
+        
+        # Perform regex match to find the work item ID
+        if ($url -match $pattern) {
+            $workItemId = $matches[1]
+            Write-Host "Extracted Work Item ID: $workItemId"
+            return $workItemId
+        } else {
+            Write-Host "No valid work item ID found in the URL."
+            return $null
+        }
+    } catch {
+        Write-Host "An error occurred: $($_.Exception.Message)"
+        return $null
+    }
+}
+
 if ($workItems) {
     foreach ($wi in $workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
@@ -317,25 +341,19 @@ if ($workItems) {
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
-                    Write-Host "linkerelation:$linkrel"     
+                    Write-Host "linkerelation:$linkrel"
+                    $oldtargetid = WorkItemIdFromUrl -url $link.url
+                    $newtargetid = $idMapping[$oldtargetid]
                     # Extract the source item ID from the URL
-                    if ($link.url -match '_apis/wit/workItems/(\d+)$') {  # This regex extracts the ID from the URL
-                        $linkedWorkItemId = $Matches[1]
-
-                        # Compare extracted ID with the current work item ID
-                        if ($linkedWorkItemId -eq $wi.id) {
-                            Write-Host "Link refers back to the same work item."
-                        } else {
-                            Write-Host "Link refers to a different work item with ID: $linkedWorkItemId"
-                        }
-
-                        # Check if the link's target work item ID is in the idMapping table
-                        if ($idMapping.ContainsKey($linkedWorkItemId)) {
-                            # Update the link to point to the new cloned work item ID
-                            $newLinkedId = $idMapping[$linkedWorkItemId]
-                            UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $newId -linkedWorkItemId $newLinkedId -linkType $link.rel
-                        }
+                    if ($newtargetid) {  # This regex extracts the ID from the URL
+                        Write-Host "Link changes for source and target $($mappedids) to  $($newtargetid)"
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
                     }
+                    else {
+                            Write-Host "no new targetid for link $($mappedids) to  $($newtargetid)"
+                    }
+
+                            
                 }
             }
         } else {
