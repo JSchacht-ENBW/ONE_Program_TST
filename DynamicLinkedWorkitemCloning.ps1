@@ -294,6 +294,7 @@ if ($workItems) {
             $newId = $newWorkItemResponse.id
             Write-Host "New work item found with ID: $newId"
             $idMapping[$wi.id] = $newId
+            Write-Host "relations:$($wi.relations)" 
 
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
