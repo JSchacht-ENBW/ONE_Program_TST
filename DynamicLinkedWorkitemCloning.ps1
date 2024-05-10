@@ -96,7 +96,7 @@ function Get-IdentityById {
         $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
         return $identity
     } catch {
-        Write-Host "No valid identity found for ID: $identityId"
+        Write-Host "  No valid identity found for ID: $identityId"
         return $null
     }
 }
@@ -172,13 +172,13 @@ function CloneWorkItem {
             # Handle identity fields
             if ($field.Name -in $fieldNamesIndentity) {
                 $identityid = $($value.id)
-                Write-Host "identity id: $identityid"
+                Write-Host "  identity id: $identityid"
                 $identity = Get-IdentityByID -identityId $identityid -headers $headers -orgUrl $orgUrl
                 if ($identity -and !$identity.inactive) {
                     $value = $identity
                     $valueset = $true
                 } else {
-                    Write-Host "Invalid or inactive identity, skipping assignment for System.AssignedTo."
+                    Write-Host "  Invalid or inactive identity, skipping assignment for System.AssignedTo."
                     continue
                 }
             }
@@ -200,12 +200,13 @@ function CloneWorkItem {
         Write-Host "Successfully cloned new work item with ID: $($response.id)"
         return $response
     } catch {
+
+        Write-Host "  Response:$response"
+        Write-Host "  mappedAreaPath:$mappedAreaPath"
+        Write-Host "  Target Project: $targetProject"
+        Write-Host "  Request Body: $jsonBody"
+        Write-Host "  URI: $uri"
         Write-Host "Failed to clone work item: $($_.Exception.Message)"
-        Write-Host "Response:$response"
-        Write-Host "mappedAreaPath:$mappedAreaPath"
-        Write-Host "Target Project: $targetProject"
-        Write-Host "Request Body: $jsonBody"
-        Write-Host "URI: $uri"
         return $null
     }
 }
@@ -230,7 +231,7 @@ function Get-AllWorkItemDetails {
     try {
         $wiqlResponse = Invoke-RestMethod -Uri $uriWIQL -Method Post -Headers $headers -Body ($wiql | ConvertTo-Json -Compress)
     } catch {
-        Write-Host "Failed to execute WIQL query: $($_.Exception.Message)"
+        Write-Host "  Failed to execute WIQL query: $($_.Exception.Message)"
         return $null
     }
 
@@ -269,10 +270,6 @@ $headers = @{
 # Retrieve all work items details
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 
-foreach ($item in $allDetails) {
-    Write-Host "Detailed  Work Item ID: $($item.id), Title: $($item.fields.'System.Title'), AreaPath: $($item.fields.'System.AreaPath')"
-}
-
 # Dictionary to map old IDs to new IDs
 $idMapping = @{}
 
@@ -288,18 +285,18 @@ if ($workItems) {
 
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
-            Write-Host "New work item found with ID: $newId"
+            Write-Host "  New work item found with ID: $newId"
             $idMapping[$wi.id] = $newId
 
-            Write-Host "MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
+            Write-Host "--MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
 
             
         } else {
-            Write-Host "Failed to create new work item. $($newWorkItemResponse)"
+            Write-Host "  Failed to create new work item. $($newWorkItemResponse)"
         }
     }
 } else {
-    Write-Host "No work items to process."
+    Write-Host "  No work items to process."
 }
 
 function Get-WorkItemIdFromUrl {
@@ -314,14 +311,14 @@ function Get-WorkItemIdFromUrl {
         # Perform regex match to find the work item ID
         if ($url -match $pattern) {
             $workItemId = $matches[1]
-            Write-Host "Extracted Work Item ID: $workItemId"
+            Write-Host "  Extracted Work Item ID: $workItemId"
             return $workItemId
         } else {
-            Write-Host "No valid work item ID found in the URL."
+            Write-Host "  No valid work item ID found in the URL."
             return $null
         }
     } catch {
-        Write-Host "An error occurred: $($_.Exception.Message)"
+        Write-Host "  n error occurred: $($_.Exception.Message)"
         return $null
     }
 }
@@ -341,30 +338,30 @@ if ($workItems) {
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         $mappedids = $idMapping[$wi.id]
         if ($mappedids) {
-            Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)"
+            Write-Host "  Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
                 foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
-                    Write-Host "linkerelation:$linkrel"
+                    Write-Host "  linkerelation:$linkrel"
                     $oldtargetid = WorkItemIdFromUrl -url $link.url
                     $newtargetid = $idMapping[$oldtargetid]
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
-                        Write-Host "Link changes for source and target $($mappedids) to  $($newtargetid)"
+                        Write-Host "--Link changes for source and target $($mappedids) to  $($newtargetid)"
                         UpdateLink -orgUrl $UriOrganization -targetProject $targetProject -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
                     }
                     else {
-                            Write-Host "no new targetid for link $($mappedids) to  $($newtargetid)"
+                            Write-Host "  no new targetid for link $($mappedids) to  $($newtargetid)"
                     }
                 }
             }
         } else {
-            Write-Host "No ID mapping for original work item: $($wi.id)"
+            Write-Host "  No ID mapping for original work item: $($wi.id)"
         }
     }
 } else {
-    Write-Host "No work items to process."
+    Write-Host "  No work items to process."
 }
 
    
