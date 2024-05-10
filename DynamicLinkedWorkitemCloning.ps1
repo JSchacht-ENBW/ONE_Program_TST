@@ -197,24 +197,7 @@ function CloneWorkItem {
         }
     }
 
-    # Include relationships if necessary
-    if ($workItem.relations) {
-        foreach ($link in $workItem.relations) {
-            $body += @{
-                "op" = "add"
-                "path" = "/relations/-"
-                "value" = @{
-                    "rel" = $link.rel
-                    "url" = $link.url
-                    "attributes" = @{
-                        "comment" = "Cloned from work item $($workItem.id)"
-                    }
-                }
-            }
-            $linkrel = $link.rel    
-            Write-Host "linkerelation:$linkrel"     
-        }
-    }
+
 
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
@@ -348,7 +331,21 @@ if ($workItems) {
     Write-Host "No work items to process."
 }
 
+if ($workItems) {
+    foreach ($wi in $workItems) {
+        # Print each work item's ID and Title (assuming ID is directly under the work item object)
+        if ($idMapping[$wi.id]) {
+            Write-Host "Work Item ID: $($wi.id) has idmapping to $idMapping[$wi.id]
+        
+        } else {
+            Write-Host "no if mapping for original workitem . $($wi.id])"
+        }
+    }
+} else {
+    Write-Host "No work items to process."
+}
 
+   
 
 # Function to update links between work items
 function UpdateLink {
