@@ -297,7 +297,7 @@ $processedItemCount = 0
 # Retrieve all work items details
 Write-Host "------ START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
-Write-Host "---- Retrieved $processedItemCount work items from sourceProject $sourceProject sourceArea $sourceArea"
+Write-Host "---- Retrieved $($processedItemCount) $($workItems.count) work items from sourceProject $sourceProject sourceArea $sourceArea"
 
 # Dictionary to map old IDs to new IDs
 $idMapping = @{}
