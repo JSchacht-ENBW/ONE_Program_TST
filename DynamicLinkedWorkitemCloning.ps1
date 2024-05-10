@@ -91,7 +91,6 @@ function Get-IdentityById {
 
     # Update the URL to use an endpoint appropriate for querying by identity ID
     $identityUrl = "$($identityuri)_apis/identities/$($identityId)?api-version=6.0"
-    Write-Host "Identityurl:$identityUrl"
 
     try {
         $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
@@ -164,7 +163,6 @@ function CloneWorkItem {
         if ($includeField) {
             $value = $field.Value
 
-
             # Check if the field is the Description or any other field that may contain HTML
             if ($field.Name -eq "System.State") {
                 if ($value -eq "Closed") {
@@ -173,7 +171,6 @@ function CloneWorkItem {
             }
             # Handle identity fields
             if ($field.Name -in $fieldNamesIndentity) {
-                Write-Host "identity value: $($value)"
                 $identityid = $($value.id)
                 Write-Host "identity id: $identityid"
                 $identity = Get-IdentityByID -identityId $identityid -headers $headers -orgUrl $orgUrl
@@ -184,7 +181,6 @@ function CloneWorkItem {
                     Write-Host "Invalid or inactive identity, skipping assignment for System.AssignedTo."
                     continue
                 }
-
             }
 
             if ($valueset -eq $false) {
@@ -196,8 +192,6 @@ function CloneWorkItem {
             }
         }
     }
-
-
 
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
@@ -296,7 +290,8 @@ if ($workItems) {
             $newId = $newWorkItemResponse.id
             Write-Host "New work item found with ID: $newId"
             $idMapping[$wi.id] = $newId
-            Write-Host "relations:$($wi.relations)" 
+
+            Write-Host "MAPPING :  $($wi.id) to$($idMapping[$wi.id]) " 
 
             
         } else {
