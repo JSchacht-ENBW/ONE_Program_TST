@@ -331,7 +331,14 @@ function Get-WorkItemIdFromUrl {
     }
 }
 
-$JsonIDmap = $idMapping | ConvertTo-Json -Depth 10 -Compress
+# Convert hashtable to a dictionary with string keys
+$stringKeyDictionary = [System.Collections.Generic.Dictionary[string,object]]::new()
+foreach ($key in $idMapping.Keys) {
+    $stringKeyDictionary.Add([string]$key, $idMapping[$key])
+}
+
+# Now convert this dictionary to JSON
+$JsonIDmap = $stringKeyDictionary | ConvertTo-Json -Depth 10 -Compress
 Write-Host "Full ID Map : $($JsonIDmap)"
 
 if ($workItems) {
@@ -355,8 +362,6 @@ if ($workItems) {
                     else {
                             Write-Host "no new targetid for link $($mappedids) to  $($newtargetid)"
                     }
-
-                            
                 }
             }
         } else {
