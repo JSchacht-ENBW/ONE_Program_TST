@@ -351,7 +351,12 @@ function UpdateLink {
         $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
         Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
     } catch {
-        Write-Host "------Failed to update link: $($_.Exception.Message)"
+        Write-Host "......Failed to update link: $($_.Exception.Message)"
+        Write-Host "........ Response:$response"
+        Write-Host "........ mappedAreaPath:$mappedAreaPath"
+        Write-Host "........ Target Project: $targetProject"
+        Write-Host "........ Request Body: $jsonBody"
+        Write-Host "........ URI: $uri"
     }
 }
 
