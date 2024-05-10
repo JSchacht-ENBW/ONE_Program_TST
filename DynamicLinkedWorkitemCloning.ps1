@@ -121,7 +121,7 @@ function CloneWorkItem {
         "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
          "System.BoardColumn","System.NodeName", "System.AuthorizedAs", "System.CommentCount"
          "Microsoft.VSTS.Common.StateChangeDate", "Microsoft.VSTS.Common.StackRank"
-         "System.TeamProject", "System.AreaPath", "System.IterationPath"
+         "System.TeamProject", "System.AreaPath", "System.IterationPath" , "System.Reason"
 
     )
 
