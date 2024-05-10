@@ -9,7 +9,7 @@ $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass y
 
 # Base URI for Azure DevOps REST API calls
 $baseUri = "https://dev.azure.com/$sourceOrg"
-$identityuri  = "https://vssps.dev.azure.com/$sourceOrg"
+$identityuri  = "https://vssps.dev.azure.com/$sourceOrg/"
 
 $AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
 $AzureDevOpsAuthenicationHeader = @{
