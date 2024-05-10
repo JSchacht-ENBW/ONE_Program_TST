@@ -89,7 +89,7 @@ function Get-IdentityById {
     )
 
     # Update the URL to use an endpoint appropriate for querying by identity ID
-    $identityUrl = "$($orgUrl)_apis/identities/$identityId?api-version=6.0"
+    $identityUrl = "$($orgUrl)_apis/identities/$($identityId)?api-version=6.0"
     Write-Host "Identityurl:$identityUrl"
 
     try {
