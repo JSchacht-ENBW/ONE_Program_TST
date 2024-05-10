@@ -323,6 +323,37 @@ if ($workItems) {
 }
 
 
+# Function to update links between work items
+function UpdateLink {
+    param (
+        [string]$orgUrl,
+        [string]$targetProject,
+        [hashtable]$headers,
+        [int]$workItemId,
+        [int]$linkedWorkItemId,
+        [string]$linkType
+    )
+    $uri = "$orgUrl/$targetProject/_apis/wit/workitems/$workItemId"
+    $body = @{
+        "op" = "add"
+        "path" = "/relations/-"
+        "value" = @{
+            "rel" = $linkType
+            "url" = "$orgUrl/$targetProject/_apis/wit/workitems/$linkedWorkItemId"
+            "attributes" = @{
+                "comment" = "Link cloned to new work item"
+            }
+        }
+    }
+
+    $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
+        Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
+    } catch {
+        Write-Host "------Failed to update link: $($_.Exception.Message)"
+    }
+}
 
 
 # Convert hashtable to a dictionary with string keys
@@ -375,34 +406,3 @@ if ($workItems) {
 Write-Host "-- "
 Write-Host "-- END RELINKING CLONED RELATIONS"
    
-# Function to update links between work items
-function UpdateLink {
-    param (
-        [string]$orgUrl,
-        [string]$targetProject,
-        [hashtable]$headers,
-        [int]$workItemId,
-        [int]$linkedWorkItemId,
-        [string]$linkType
-    )
-    $uri = "$orgUrl/$targetProject/_apis/wit/workitems/$workItemId"
-    $body = @{
-        "op" = "add"
-        "path" = "/relations/-"
-        "value" = @{
-            "rel" = $linkType
-            "url" = "$orgUrl/$targetProject/_apis/wit/workitems/$linkedWorkItemId"
-            "attributes" = @{
-                "comment" = "Link cloned to new work item"
-            }
-        }
-    }
-
-    $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
-    try {
-        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
-        Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
-    } catch {
-        Write-Host "------Failed to update link: $($_.Exception.Message)"
-    }
-}
