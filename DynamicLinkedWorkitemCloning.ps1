@@ -106,6 +106,7 @@ function CloneWorkItem {
 
     foreach ($field in  $workItem.fields.PSObject.Properties) {
         $includeField = $true
+        $valueset = $false
 
         # Check against non-writable fields list
         if ($field.Name -in $nonWritableFields) {
@@ -131,13 +132,28 @@ function CloneWorkItem {
             # Check if the field is the Description or any other field that may contain HTML
             if ($field.Name -eq "System.State") {
                 if ($value -eq "Closed") {
-                $value = "Done"}
+                $value = "Done"
+                $valueset = $true}
+            }
+            # Handle identity fields
+            if ($field.Name -eq "System.AssignedTo") {
+                $identity = Get-IdentityByDescriptor -descriptor $value.descriptor -headers $headers -orgUrl $orgUrl
+                if ($identity -and !$identity.inactive) {
+                    $value = $identity
+                    $valueset = $true
+                } else {
+                    Write-Host "Invalid or inactive identity, skipping assignment for System.AssignedTo."
+                    continue
+                }
+
             }
 
-            $body += @{
-                "op"    = "add"
-                "path"  = "/fields/$($field.Name)"
-                "value" = $value
+            if ($valueset -eq $true) {
+                $body += @{
+                    "op"    = "add"
+                    "path"  = "/fields/$($field.Name)"
+                    "value" = $value
+                }
             }
         }
     }
