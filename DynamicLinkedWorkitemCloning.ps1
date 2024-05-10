@@ -211,6 +211,29 @@ function CloneWorkItem {
     }
 }
 
+function Get-WorkItemIdFromUrl {
+    param (
+        [string]$url
+    )
+
+    try {
+        # Define a regex pattern to match the work item ID in the Azure DevOps URL
+        $pattern = '_apis/wit/workItems/(\d+)$'
+        
+        # Perform regex match to find the work item ID
+        if ($url -match $pattern) {
+            $workItemId = $matches[1]
+            Write-Host "  Extracted Work Item ID: $workItemId"
+            return $workItemId
+        } else {
+            Write-Host "  No valid work item ID found in the URL."
+            return $null
+        }
+    } catch {
+        Write-Host "  n error occurred: $($_.Exception.Message)"
+        return $null
+    }
+}
 
 function Get-AllWorkItemDetails {
     param (
@@ -275,7 +298,7 @@ $processedItemCount = 0
 Write-Host "------ START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
 Write-Host "---- Retrieved $processedItemCount work items from sourceProject $sourceProject sourceArea $sourceArea"
-Count: "
+
 # Dictionary to map old IDs to new IDs
 $idMapping = @{}
 
@@ -284,7 +307,6 @@ $idMapping = @{}
 Write-Host "------ START CLONING SOURCE ITEMS "
 if ($workItems) {
     foreach ($wi in $workItems) {
-        Write-Host "------"
         # Print each work item's ID and Title (assuming ID is directly under the work item object)
         Write-Host "Work Item ID: $($wi.id), WIT: $($wi.fields.'System.WorkItemType'), Title: $($wi.fields.'System.Title'), State: $($wi.fields.'System.State'), Description: $($wi.fields.'System.Description')"
         Write-Host "---- START CLONING SOURCE ITEM "
@@ -309,29 +331,7 @@ if ($workItems) {
 }
 
 
-function Get-WorkItemIdFromUrl {
-    param (
-        [string]$url
-    )
 
-    try {
-        # Define a regex pattern to match the work item ID in the Azure DevOps URL
-        $pattern = '_apis/wit/workItems/(\d+)$'
-        
-        # Perform regex match to find the work item ID
-        if ($url -match $pattern) {
-            $workItemId = $matches[1]
-            Write-Host "  Extracted Work Item ID: $workItemId"
-            return $workItemId
-        } else {
-            Write-Host "  No valid work item ID found in the URL."
-            return $null
-        }
-    } catch {
-        Write-Host "  n error occurred: $($_.Exception.Message)"
-        return $null
-    }
-}
 
 # Convert hashtable to a dictionary with string keys
 $stringKeyDictionary = [System.Collections.Generic.Dictionary[string,object]]::new()
