@@ -115,7 +115,7 @@ function CloneWorkItem {
     # Define non-writable fields
     $nonWritableFields = @(
         "System.Id", "System.Rev", "System.CreatedDate", "System.CreatedBy",
-        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate",
+        "System.ChangedDate", "System.ChangedBy", "System.RevisedDate", "System.ClosedDate","System.ActivatedDate",
         "System.AreaId", "System.IterationId", "System.WorkItemType", 
         "System.StateChangeDate", "System.AuthorizedDate", "System.PersonId",
         "System.BoardColumnDone", "System.Watermark" , "System.Parent" ,
@@ -164,7 +164,7 @@ function CloneWorkItem {
 
             # Check if the field is the Description or any other field that may contain HTML
             if ($field.Name -eq "System.Description") {
-                $value = Encode-Html -HtmlContent $value
+                #$value = Encode-Html -HtmlContent $value
             }
 
             # Check if the field is the Description or any other field that may contain HTML
@@ -174,7 +174,7 @@ function CloneWorkItem {
                 $valueset = $true}
             }
             # Handle identity fields
-            if ($field.Name -eq "System.AssignedTo") {
+            if ($field.Name -eq "System.AssignedTo" or $field.Name -eq "Microsoft.VSTS.Common.ActivatedBy" or $field.Name -eq "Microsoft.VSTS.Common.ClosedBy") {
                 Write-Host "identity value: $($value)"
                 $identityid = $($value.id)
                 Write-Host "identity id: $identityid"
