@@ -63,7 +63,22 @@ function Encode-Html {
     # Using .NET WebUtility class to HTML encode the content
     return [System.Net.WebUtility]::HtmlEncode($HtmlContent)
 }
+function Get-IdentityByDescriptor {
+    param (
+        [string]$descriptor,
+        [hashtable]$headers,
+        [string]$orgUrl
+    )
 
+    $identityUrl = "$orgUrl/_apis/identities?descriptors=$descriptor&api-version=6.0"
+    try {
+        $identity = Invoke-RestMethod -Uri $identityUrl -Method Get -Headers $headers
+        return $identity
+    } catch {
+        Write-Host "No valid identity found for descriptor: $descriptor"
+        return $null
+    }
+}
 function CloneWorkItem {
     param (
         [string]$orgUrl,
