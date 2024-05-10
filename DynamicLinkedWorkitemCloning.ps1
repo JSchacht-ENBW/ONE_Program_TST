@@ -200,12 +200,12 @@ function CloneWorkItem {
         Write-Host "------ Successfully cloned new work item with ID: $($response.id)"
         return $response
     } catch {
-        Write-Host "------ Failed to clone work item: $($_.Exception.Message)"
-        Write-Host "       Response:$response"
-        Write-Host "       mappedAreaPath:$mappedAreaPath"
-        Write-Host "       Target Project: $targetProject"
-        Write-Host "       Request Body: $jsonBody"
-        Write-Host "       URI: $uri"
+        Write-Host "...... Failed to clone work item: $($_.Exception.Message)"
+        Write-Host "........ Response:$response"
+        Write-Host "........ mappedAreaPath:$mappedAreaPath"
+        Write-Host "........ Target Project: $targetProject"
+        Write-Host "........ Request Body: $jsonBody"
+        Write-Host "........ URI: $uri"
        
         return $null
     }
@@ -271,11 +271,11 @@ function Get-AllWorkItemDetails {
                 $workItemDetails = Invoke-RestMethod -Uri $detailUri -Method Get -Headers $headers
                 $allWorkItems += $workItemDetails
             } catch {
-                Write-Host "------ Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
-                Write-Host "       Status Code: $($_.Exception.Response.StatusCode.Value__)"
-                Write-Host "       Status Description: $($_.Exception.Response.StatusDescription)"
-                Write-Host "       Workitem: $($workItemId)"
-                Write-Host "       URI: $($detailUri)"
+                Write-Host "...... Failed to retrieve details for work item ID $($workItemId): $($_.Exception.Message)"
+                Write-Host "........ Status Code: $($_.Exception.Response.StatusCode.Value__)"
+                Write-Host "........ Status Description: $($_.Exception.Response.StatusDescription)"
+                Write-Host "........ Workitem: $($workItemId)"
+                Write-Host "........ URI: $($detailUri)"
             }
         }
         return $allWorkItems
@@ -295,6 +295,7 @@ $headers = @{
 $processedItemCount = 0
 
 # Retrieve all work items details
+Write-Host ""
 Write-Host "-- "
 Write-Host "-- START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
@@ -345,7 +346,7 @@ foreach ($key in $idMapping.Keys) {
 $JsonIDmap = $stringKeyDictionary | ConvertTo-Json -Depth 10 -Compress
 Write-Host "-- "
 Write-Host "-- RETRIEVED ID MAP : $($JsonIDmap)"
-
+Write-Host ""
 Write-Host "-- "
 Write-Host "-- START RELINKING CLONED RELATIONS"
 
