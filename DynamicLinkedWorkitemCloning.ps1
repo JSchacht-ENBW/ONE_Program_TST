@@ -337,9 +337,8 @@ if ($workItems) {
         $mappedids = $idMapping[$wi.id]
         if ($mappedids) {
             Write-Host "Work Item ID: $($wi.id) has idmapping to $($mappedids)
-        
         } else {
-            Write-Host "no if mapping for original workitem . $($wi.id))"
+            Write-Host "no if mapping for original workitem . $($wi.id)"
         }
     }
 } else {
@@ -347,7 +346,6 @@ if ($workItems) {
 }
 
    
-
 # Function to update links between work items
 function UpdateLink {
     param (
