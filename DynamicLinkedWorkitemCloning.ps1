@@ -239,6 +239,7 @@ function Get-AllWorkItemDetails {
     if ($wiqlResponse -and $wiqlResponse.workItems) {
         $allWorkItems = @()
         foreach ($workItemRef in $wiqlResponse.workItems) {
+            $processedItemCount++
             $workItemId = $workItemRef.id
             $detailUri = "$baseUri/$sourceProject/_apis/wit/workitems/$($workItemId)?api-version=6.0&`$expand=all"
             
@@ -267,10 +268,14 @@ $headers = @{
     "Content-Type" = "application/json"
 }
 
+# Initialize counter for processed work items
+$processedItemCount = 0
+
 # Retrieve all work items details
 Write-Host "------ START RETRIEVING SOURCE ITEMS "
 $workItems = Get-AllWorkItemDetails -baseUri $baseUri -sourceProject $sourceProject -sourceArea $sourceArea -headers $headers
-
+Write-Host "---- Retrieved $processedItemCount work items from sourceProject $sourceProject sourceArea $sourceArea"
+Count: "
 # Dictionary to map old IDs to new IDs
 $idMapping = @{}
 
