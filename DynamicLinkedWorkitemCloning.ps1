@@ -174,8 +174,8 @@ function CloneWorkItem {
             }
             # Handle identity fields
             if ($field.Name -eq "System.AssignedTo") {
-                Write-Host "identity value: $($value).id"
-                Write-Host "identity id: $($value)"
+                Write-Host "identity value: $($value)"
+                Write-Host "identity id: $($value.id)"
                 $identity = Get-IdentityByID -identityId $value.id -headers $headers -orgUrl $orgUrl
                 if ($identity -and !$identity.inactive) {
                     $value = $identity
