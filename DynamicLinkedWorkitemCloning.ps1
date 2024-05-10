@@ -9,6 +9,7 @@ $PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass y
 
 # Base URI for Azure DevOps REST API calls
 $baseUri = "https://dev.azure.com/$sourceOrg"
+$identityuri  = "https://sspsv.dev.azure.com/$sourceOrg"
 
 $AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
 $AzureDevOpsAuthenicationHeader = @{
@@ -89,7 +90,7 @@ function Get-IdentityById {
     )
 
     # Update the URL to use an endpoint appropriate for querying by identity ID
-    $identityUrl = "$($orgUrl)_apis/identities/$($identityId)?api-version=6.0"
+    $identityUrl = "$($identityuri)_apis/identities/$($identityId)?api-version=6.0"
     Write-Host "Identityurl:$identityUrl"
 
     try {
