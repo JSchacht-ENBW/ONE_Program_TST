@@ -216,6 +216,7 @@ function Get-WorkItemIdFromUrl {
     $pattern = '_apis/wit/workItems/(\d+)$'
     if ($url -match $pattern) {
         $workItemId = $matches[1]
+        Write-Host "------ linked id $($workItemId) fround in $url"
         return [string]$workItemId  # Cast as string to ensure consistency
     } else {
         Write-Host "No valid work item ID found in the URL."
@@ -307,9 +308,9 @@ if ($workItems) {
         if ($newWorkItemResponse) {
             $newId = $newWorkItemResponse.id
             Write-Host "---- FINISHED CLONING SOURCE ITEM : $newId"
-            $idMapping["$wi.id"] = $newId
+            $idMapping["$($wi.id)"] = $newId
 
-            Write-Host "------ MAPPING : Old $($wi.id) to new $($idMapping[$wi.id]) " 
+            Write-Host "------ MAPPING : Old $($wi.id) to new $($idMapping[$wi.id]) ($($newId)) " 
 
             
         } else {
