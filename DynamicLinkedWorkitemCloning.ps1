@@ -333,17 +333,18 @@ function UpdateLink {
         [hashtable]$headers,
         [int]$workItemId,
         [int]$linkedWorkItemId,
+        [int]$linkedWorkItemIdOld,
         [string]$linkType
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
     $body = @{
-        "op" = "add"
+        "op" = "replace"
         "path" = "/relations/-"
         "value" = @{
             "rel" = $linkType
             "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
             "attributes" = @{
-                "comment" = "Link cloned to new work item"
+                "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)"
             }
         }
     }
@@ -395,7 +396,7 @@ if ($workItems) {
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkType $link.rel
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
