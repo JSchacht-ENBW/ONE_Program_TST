@@ -341,7 +341,7 @@ function UpdateLink {
         "path" = "/relations/-"
         "value" = @{
             "rel" = $linkType
-            "url" = "$orgUrl/$targetProject/_apis/wit/workitems/$linkedWorkItemId"
+            "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
             "attributes" = @{
                 "comment" = "Link cloned to new work item"
             }
