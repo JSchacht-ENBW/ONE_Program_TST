@@ -387,9 +387,10 @@ if ($workItems) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
+
                 foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
-
+                    Write-Host "link : $link"
                     $oldtargetid = WorkItemIdFromUrl -url $link.url
                     $newtargetid = $idMapping["$($oldtargetid)"] 
                     Write-Host "------ linkerelation:$linkrel to be transposed from $($oldtargetid) to $($newtargetid)"
