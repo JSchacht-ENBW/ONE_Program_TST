@@ -333,6 +333,7 @@ function UpdateLink {
         [string]$targetProject,
         [hashtable]$headers,
         [int]$workItemId,
+        [string]$WorkItemType,
         [int]$linkedWorkItemId,
         [int]$linkedWorkItemIdOld,
         [string]$linkType,
@@ -341,6 +342,11 @@ function UpdateLink {
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
 
     $body = @()
+     $body += @{
+        "op"    = "add"
+        "path"  = "/fields/System.WorkItemType"
+        "value" = $WorkItemType
+    }
     $body += @(
         @{
             "op" = "add"
@@ -392,6 +398,7 @@ if ($workItems) {
         if ($mappedids) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
+            $WorkItemType = $wi.fields.'System.WorkItemType'
             if ($wi.relations) {
                 $linkcount = 0
                 foreach ($link in $wi.relations) {
@@ -404,7 +411,7 @@ if ($workItems) {
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -WorkItemType = -WorkItemType $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
