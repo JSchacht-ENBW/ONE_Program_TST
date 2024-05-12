@@ -346,7 +346,7 @@ function UpdateLink {
             "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
             "attributes" = @{
                 "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)",
-                "name": "Parent"
+                "name" = "Parent"
             }
         }
     }
