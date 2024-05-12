@@ -340,19 +340,25 @@ function UpdateLink {
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
     $body = @()
-    $body += @{
-        "op" = "add"
-        "path" = "/relations/-"
-        "value" = {
-            "rel": $linkType
-            "url": "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
-            "attributes" : {
-                "comment": "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)"
+    
+    @linkvalue = @{
+        {
+            "rel" = $linkType
+            "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
+            "attributes" = @{
+                "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)"
             },
         "url": "https://dev.azure.com/enbw/f7db8333-e29d-4dc4-8c52-cb0249449af2/_apis/wit/workitems/$workItemId"    
         }
     }
 
+    $body += @{
+        "op" = "add"
+        "path" = "/relations/-"
+        "value" = @linkvalue
+    }
+    
+    
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
