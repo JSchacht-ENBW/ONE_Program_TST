@@ -1,13 +1,21 @@
-# Set variables
+
+param (
+    [string]$sourceProject = "ONE!",
+    [string]$sourceArea = "ONE!\\xx_Sandkasten",  # Use double backslash in PowerShell for correct escaping
+    [string]$destinationProject = "ONE! Program_Dev",
+    [string]$destinationArea = "ONE! Program_Dev",
+    [string]$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa",
+    [string]$sourceProjectID = "38def788-c6c3-414b-b0e3-b017687f4701",
+    [string]$targetProjectID = "f7db8333-e29d-4dc4-8c52-cb0249449af2"
+)
+
+# Set fixed variables
 $sourceOrg = "enbw"
-$sourceProject = "ONE!"
-$sourceProjectID = "38def788-c6c3-414b-b0e3-b017687f4701"
-$sourceArea = "ONE!\\xx_Sandkasten"  # Use double backslash in PowerShell for correct escaping
 $targetOrg = "enbw"
-$targetProject = "ONE! Program_Dev"
-$targetProjectID = "f7db8333-e29d-4dc4-8c52-cb0249449af2"
-$targetArea = $targetProject
-$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa"  # Securely pass your PAT
+
+# Use the parameters
+$targetProject = $destinationProject
+$targetArea = $destinationArea
 
 # Base URI for Azure DevOps REST API calls
 $baseUri = "https://dev.azure.com/$sourceOrg"

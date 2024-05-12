@@ -4,6 +4,23 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+parameters:
+- name: sourceProject
+  type: string
+  default: 'DefaultSourceProject'
+- name: sourceArea
+  type: string
+  default: 'DefaultSourceArea'
+- name: destinationProject
+  type: string
+  default: 'DefaultDestinationProject'
+- name: destinationArea
+  type: string
+  default: 'DefaultDestinationArea'
+- name: PAT
+  type: string
+  default: 'DefaultPAT'
+
 variables:
   - group: Security
 
@@ -15,7 +32,7 @@ steps:
   inputs:
     targetType: 'filePath'
     filePath: 'DynamicLinkedWorkitemCloning.ps1'
-    arguments: '-Organization "enbw" -Project "ONE! Program_TST" -PAT "$(PAT PowerBi)"'
+    arguments: '-SourceProject "${{ parameters.sourceProject }}" -SourceArea "${{ parameters.sourceArea }}" -DestinationProject "${{ parameters.destinationProject }}" -DestinationArea "${{ parameters.destinationArea }}" -PAT "${{ parameters.PAT }}"'
     pwsh: true
   displayName: 'Run Azure DevOps PowerShell Script'
 
