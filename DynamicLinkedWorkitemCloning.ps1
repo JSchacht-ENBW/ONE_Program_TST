@@ -338,7 +338,7 @@ function UpdateLink {
         [int]$linkcount
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
-    $body = @[{
+    $body = @{
         "op" = "add"
         "path" = "/relations/-"
         "value" = @{
@@ -347,7 +347,7 @@ function UpdateLink {
             "attributes" = @{
                 "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)"
             }
-        }]
+        }
     }
 
     $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
