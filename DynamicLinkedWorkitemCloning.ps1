@@ -333,7 +333,7 @@ function UpdateLink {
         [string]$targetProject,
         [hashtable]$headers,
         [int]$workItemId,
-        [string]$WorkItemType,
+        [string]$WorkItemTitle,
         [int]$linkedWorkItemId,
         [int]$linkedWorkItemIdOld,
         [string]$linkType,
@@ -344,8 +344,8 @@ function UpdateLink {
     $body = @()
      $body += @{
         "op"    = "add"
-        "path"  = "/fields/System.WorkItemType"
-        "value" = $WorkItemType
+        "path"  = "/fields/System.Title"
+        "value" = $WorkItemTitle
     }
     $body += @(
         @{
@@ -398,7 +398,7 @@ if ($workItems) {
         if ($mappedids) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
-            $WorkItemType = $wi.fields.'System.WorkItemType'
+            $WorkItemTitle = $wi.fields.'System.Title'
             if ($wi.relations) {
                 $linkcount = 0
                 foreach ($link in $wi.relations) {
@@ -411,7 +411,7 @@ if ($workItems) {
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -WorkItemType = -WorkItemType $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -WorkItemTitle = -WorkItemTitle $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
