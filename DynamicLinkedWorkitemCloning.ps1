@@ -412,7 +412,7 @@ if ($workItems) {
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -WorkItemTitle = $WorkItemTitle -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -WorkItemTitle $WorkItemTitle -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
