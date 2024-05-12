@@ -351,7 +351,8 @@ function UpdateLink {
         }
     }
 
-    $jsonBody = ConvertTo-Json -Depth 5 -InputObject $body
+    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+    
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
         Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
@@ -360,7 +361,7 @@ function UpdateLink {
         Write-Host "........ Response:$response"
         Write-Host "........ mappedAreaPath:$mappedAreaPath"
         Write-Host "........ Target Project: $targetProject"
-        Write-Host "........ Request Body: [$jsonBody]"
+        Write-Host "........ Request Body: $jsonBody"
         Write-Host "........ URI: $uri"
     }
 }
