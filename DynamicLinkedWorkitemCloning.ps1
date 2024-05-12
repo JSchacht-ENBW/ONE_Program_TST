@@ -339,13 +339,14 @@ function UpdateLink {
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
     $body = @{
-        "op" = "replace"
-        "path" = "/relations/$linkcount"
+        "op" = "add"
+        "path" = "/relations/-"
         "value" = @{
             "rel" = $linkType
             "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
             "attributes" = @{
-                "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)"
+                "comment" = "Link cloned from old target $($oldtargetid) to new target $($linkedWorkItemId)",
+                "name": "Parent"
             }
         }
     }
