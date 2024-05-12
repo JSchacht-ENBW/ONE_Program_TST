@@ -339,7 +339,7 @@ function UpdateLink {
         [int]$linkcount
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
-    $body = @{
+    $body = @(
         @{
             "op" = "add"
             "path" = "/relations/-"
@@ -351,7 +351,7 @@ function UpdateLink {
                 }
             }
         }
-    }
+    )
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
