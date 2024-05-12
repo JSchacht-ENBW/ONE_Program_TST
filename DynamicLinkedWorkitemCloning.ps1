@@ -335,11 +335,12 @@ function UpdateLink {
         [int]$linkedWorkItemId,
         [int]$linkedWorkItemIdOld,
         [string]$linkType
+        [int]$linkcount
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
     $body = @{
         "op" = "replace"
-        "path" = "/relations/-"
+        "path" = "/relations/$linkcount"
         "value" = @{
             "rel" = $linkType
             "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
@@ -387,17 +388,18 @@ if ($workItems) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             if ($wi.relations) {
-
+                $linkcount = 0
                 foreach ($link in $wi.relations) {
                     $linkrel = $link.rel    
-                    Write-Host "link : $link"
+                    $linkcount++
+                    Write-Host "link # : $linkcount"
                     $oldtargetid = WorkItemIdFromUrl -url $link.url
                     $newtargetid = $idMapping["$($oldtargetid)"] 
                     Write-Host "------ linkerelation:$linkrel to be transposed from $($oldtargetid) to $($newtargetid)"
                     # Extract the source item ID from the URL
                     if ($newtargetid) {  # This regex extracts the ID from the URL
                         Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel
+                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount %linkcount
                     }
                     else {
                             Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
