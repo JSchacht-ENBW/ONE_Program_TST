@@ -355,7 +355,7 @@ function UpdateLink {
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body ($jsonBody | ConvertTo-Json)
         Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
     } catch {
         Write-Host "......Failed to update link: $($_.Exception.Message)"
