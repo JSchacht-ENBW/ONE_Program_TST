@@ -200,6 +200,7 @@ function CloneWorkItem {
     try {
         $response = Invoke-RestMethod -Uri $uri -Method POST -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
         Write-Host "------ Successfully cloned new work item with ID: $($response.id)"
+        Write-Host "........ Request Body: $jsonBody"
         return $response
     } catch {
         Write-Host "...... Failed to clone work item: $($_.Exception.Message)"
@@ -359,7 +360,7 @@ function UpdateLink {
         Write-Host "........ Response:$response"
         Write-Host "........ mappedAreaPath:$mappedAreaPath"
         Write-Host "........ Target Project: $targetProject"
-        Write-Host "........ Request Body: $jsonBody"
+        Write-Host "........ Request Body: [$jsonBody]"
         Write-Host "........ URI: $uri"
     }
 }
