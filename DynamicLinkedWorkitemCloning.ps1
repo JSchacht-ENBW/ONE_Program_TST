@@ -343,7 +343,7 @@ function UpdateLink {
 
     $body = @()
      $body += @{
-        "op"    = "add"
+        "op"    = "replace"
         "path"  = "/fields/System.Title"
         "value" = $WorkItemTitle
     }
@@ -398,7 +398,7 @@ if ($workItems) {
         if ($mappedids) {
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
-            $WorkItemTitle = $wi.fields.'System.Title'
+            $WorkItemTitle = $($wi.fields.'System.Title')
             if ($wi.relations) {
                 $linkcount = 0
                 foreach ($link in $wi.relations) {
