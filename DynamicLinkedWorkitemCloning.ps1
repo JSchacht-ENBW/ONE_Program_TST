@@ -342,10 +342,10 @@ function UpdateLink {
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$($workItemId)?api-version=6.0"
 
     $body = @()
-     $body += @{
+    $body += @{
         "op"    = "replace"
         "path"  = "/fields/System.Title"
-        "value" = $WorkItemTitle
+        "value" = $($WorkItemTitle)
     }
     $body += @(
         @{
@@ -364,7 +364,8 @@ function UpdateLink {
 
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
-        Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
+        Write-Host "------ Link updated successfully between $workItemId and $linkedWorkItemId"
+        Write-Host "------ Request Body: $jsonBody"
     } catch {
         Write-Host "......Failed to update link: $($_.Exception.Message)"
         Write-Host "........ Response:$response"
