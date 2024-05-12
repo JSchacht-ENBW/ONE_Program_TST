@@ -339,7 +339,9 @@ function UpdateLink {
         [int]$linkcount
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
-    $body = @(
+
+    $body = @()
+    $body += @(
         @{
             "op" = "add"
             "path" = "/relations/-"
@@ -355,7 +357,7 @@ function UpdateLink {
     $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
 
     try {
-        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $headers -ContentType "application/json-patch+json" -Body ($jsonBody | ConvertTo-Json)
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
         Write-Host "------Link updated successfully between $workItemId and $linkedWorkItemId"
     } catch {
         Write-Host "......Failed to update link: $($_.Exception.Message)"
