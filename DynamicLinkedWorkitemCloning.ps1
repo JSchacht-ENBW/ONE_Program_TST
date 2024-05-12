@@ -339,7 +339,7 @@ function UpdateLink {
         [string]$linkType,
         [int]$linkcount
     )
-    $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
+    $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId?api-version=6.0"
 
     $body = @()
      $body += @{
