@@ -334,7 +334,7 @@ function UpdateLink {
         [int]$workItemId,
         [int]$linkedWorkItemId,
         [int]$linkedWorkItemIdOld,
-        [string]$linkType
+        [string]$linkType,
         [int]$linkcount
     )
     $uri = "$orgUrl$targetProject/_apis/wit/workitems/$workItemId"
