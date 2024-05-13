@@ -7,20 +7,26 @@ pool:
 parameters:
 - name: sourceProject
   type: string
-  default: 'DefaultSourceProject'
+  default: "ONE!"'
 - name: sourceArea
   type: string
-  default: 'DefaultSourceArea'
+  default: 'ONE!\\xx_Sandkasten'
 - name: destinationProject
   type: string
-  default: 'DefaultDestinationProject'
+  default: 'ONE! Program_Dev'
 - name: destinationArea
   type: string
-  default: 'DefaultDestinationArea'
+  default: 'ONE! Program_Dev'
 - name: PAT
   type: string
-  default: 'DefaultPAT'
-
+  default: 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
+- name: sourceProjectID
+  type: string
+  default: '38def788-c6c3-414b-b0e3-b017687f4701'
+- name: targetProjectID
+  type: string
+  default: 'f7db8333-e29d-4dc4-8c52-cb0249449af2'
+  
 variables:
   - group: Security
 
