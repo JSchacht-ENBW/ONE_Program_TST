@@ -1,22 +1,18 @@
-trigger:
-- main
+   trigger:
+     branches:
+       include:
+       - main  # Trigger on changes to the main branch
 
-pool:
-  vmImage: 'windows-latest'
+   pool:
+     vmImage: 'ubuntu-latest'
 
-variables:
-  - group: Security
-
-steps:
-- checkout: self
-  displayName: 'Checkout Code'
-
-- task: PowerShell@2
-  inputs:
-    targetType: 'filePath'
-    filePath: 'AzureDevOps.ps1'
-    arguments: '-Organization "enbw" -Project "ONE! Program_TST" -PAT "$(PAT PowerBi)"'
-    pwsh: true
-  displayName: 'Run Azure DevOps PowerShell Script'
-
-
+   steps:
+   - checkout: self
+   - script: |
+       git config --global user.email "you@example.com"
+       git config --global user.name "Your Name"
+       git remote add github https://github.com/USERNAME/REPOSITORY.git
+       git push github HEAD:main --force  # Adjust the branch names as necessary
+     env:
+       GITHUB_TOKEN: $(GitHubToken)  # Use the secret variable
+     displayName: 'Push changes to GitHub'

@@ -593,7 +593,7 @@ if ($workItems) {
 } else {
     Write-Host "---- No work items to process."
 }
-}
+
 Write-Host "-- "
 Write-Host "-- END RELINKING CLONED RELATIONS"
    
