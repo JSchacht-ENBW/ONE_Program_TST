@@ -93,11 +93,11 @@ function deletelink {
             "path" = "/rev"
             "value" = "1"
     }
-    
+
     $body += @{    
             "op" = "remove"
             "path" = "/relations/$($linkposition)"
-    )
+    }
 
     $uri = $orgUrl+$targetProject+"/_apis/wit/workitems/"+$($workItem.id)+"?api-version=7.2-preview.3"
 
@@ -587,11 +587,12 @@ if ($workItems) {
             AddSynchLink -orgUrl $UriOrganization -sourceProject $sourceProjectID -targetProject $targetProjectID -headers $headers -workItemId $wi.id -WorkItemTitle $WorkItemTitle -linkedWorkItemId $mappedids  
         } else {
             Write-Host "------ No ID mapping for original work item: $($wi.id)"
-        }
+        }      
     Write-Host "---- END RELINKING OLD WORKITEM $($wi.id)"
-    } else {
-        Write-Host "---- No work items to process."
-    }
+    }  
+} else {
+    Write-Host "---- No work items to process."
+}
 }
 Write-Host "-- "
 Write-Host "-- END RELINKING CLONED RELATIONS"
