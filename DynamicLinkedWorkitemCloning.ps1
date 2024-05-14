@@ -1,10 +1,11 @@
 
+
 param (
     [string]$sourceProject = "ONE!",
     [string]$sourceArea = "ONE!\\xx_Sandkasten",  # Use double backslash in PowerShell for correct escaping
     [string]$destinationProject = "ONE! Program_Dev",
     [string]$destinationArea = "ONE! Program_Dev",
-    [string]$PAT = "hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa",
+    [string]$PAT,
     [string]$sourceProjectID = "38def788-c6c3-414b-b0e3-b017687f4701",
     [string]$targetProjectID = "f7db8333-e29d-4dc4-8c52-cb0249449af2"
 )
@@ -21,7 +22,7 @@ $targetArea = $destinationArea
 $baseUri = "https://dev.azure.com/$sourceOrg"
 $identityuri  = "https://vssps.dev.azure.com/$sourceOrg/"
 
-$AzureDevOpsPAT = 'hy5ljfnuzezpn5ojdasxtlhrfgopbpt3ezgrmaq5fqzsd7z4yfsa'
+$AzureDevOpsPAT = $PAT
 $AzureDevOpsAuthenicationHeader = @{
     Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$AzureDevOpsPAT"))
 }
@@ -34,7 +35,7 @@ $uriAccount = $UriOrganization + "_apis/projects?api-version=5.1"
 Invoke-RestMethod -Uri $uriAccount -Method Get -Headers $AzureDevOpsAuthenicationHeader
 
 
-Write-Host "mappedAreaPath:$areamap"
+Write-Host "PAT:$PAT"
 
 function MapAreaPath {
     param (
@@ -49,6 +50,59 @@ function MapAreaPath {
         # Return source if no mapping is found
         return $sourceAreaPath
     }
+}
+
+function executeworkitemrequest{
+    param (
+        [string]$uri,
+        [hashtable]$headers,
+        [string]$body,
+        [string]$method,
+        [string]$message
+    )
+
+    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method $method -Headers $headers -ContentType "application/json-patch+json" -Body $jsonBody
+        Write-Host "------ Successfully did $message with ID: $($response.id)"
+        Write-Host "........ Request Body: $jsonBody"
+        return $response
+    } catch {
+        Write-Host "...... Failed to $($message): $($_.Exception.Message)"
+        Write-Host "........ Response:$response"
+        Write-Host "........ Target Project: $targetProject"
+        Write-Host "........ Request Body: $jsonBody"
+        Write-Host "........ URI: $uri"
+        return $null
+    }
+}
+
+function deletelink {
+    param (
+        [int]$linkposition,
+        [string]$orgUrl,
+        [string]$targetProject,
+        [hashtable]$headers,
+        [psobject]$workItem
+    )
+
+    $body = @()
+    $body += @{        
+            "op" = "test"
+            "path" = "/rev"
+            "value" = "1"
+    }
+    
+    $body += @{    
+            "op" = "remove"
+            "path" = "/relations/$($linkposition)"
+    )
+
+    $uri = $orgUrl+$targetProject+"/_apis/wit/workitems/"+$($workItem.id)+"?api-version=7.2-preview.3"
+
+    executeworkitemrequest  -orgUrl $orgUrl -targetProject $targetProject -headers headers -workItem  -body $body -method "PATCH" -message "deleted link"
+
 }
 
 function Escape-JsonString {
@@ -291,6 +345,45 @@ $headers = @{
     "Content-Type" = "application/json"
 }
 
+function isMPMSComment{
+    param (
+        [string]$comment
+    )
+    $value = false
+    if ($comment) {
+        $value = $comment.StartsWith("[MPMS relation link]")
+    }
+    return $value     
+}
+
+function GetMPMSLink{
+    param (
+        [psobject]$workItem
+    )
+    $targetid = 0
+    $count = 0
+    if ($wi.relations) {
+        foreach ($link in $wi.relations) {
+            $linkrel = $link.rel
+            $count++
+            $linkcomment = $link.attributes.comment
+            if (isMPMSComment($linkcomment))   {
+                $targetid = WorkItemIdFromUrl -url $link.url
+                break
+            }
+        }
+    }
+    if ($targetid -ne 0) {
+        $result = [PSCustomObject]@{
+        link  = $link
+        count = $count}
+        return $result
+    } else {
+        Write-Host "No MPMS link found."
+        return @()
+    }
+}
+
 # Initialize counter for processed work items
 $processedItemCount = 0
 
@@ -333,6 +426,52 @@ if ($workItems) {
     Write-Host "---- No work items to process."
 }
 
+function AddSynchLink {
+    param (
+        [string]$orgUrl,
+        [string]$sourceProject,
+        [string]$targetProject,
+        [hashtable]$headers,
+        [int]$workItemId,
+        [string]$WorkItemTitle,
+        [int]$linkedWorkItemId
+    )
+    $uri = "$orgUrl$sourceProject/_apis/wit/workitems/$($workItemId)?api-version=6.0"
+
+    $body = @()
+    $body += @{
+        "op"    = "replace"
+        "path"  = "/fields/System.Title"
+        "value" = $($WorkItemTitle)
+    }
+    $body += @(
+        @{
+            "op" = "add"
+            "path" = "/relations/-"
+            "value" = @{
+                "rel" = "System.LinkTypes.Related"
+                "url" = "$orgUrl$targetProject/_apis/wit/workitems/$linkedWorkItemId"
+                "attributes" = @{
+                    "comment" = "[MPMS relation link] for cloned workitem $workItemId to clone target $($linkedWorkItemId)"
+                }
+            }
+        }
+    )
+    $jsonBody = $body | ConvertTo-Json -Depth 10 -Compress
+
+    try {
+        $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
+        Write-Host "------ Link added successfully between $workItemId and $linkedWorkItemId"
+        Write-Host "------ Request Body: $jsonBody"
+    } catch {
+        Write-Host "......Failed to update link: $($_.Exception.Message)"
+        Write-Host "........ Response:$response"
+        Write-Host "........ mappedAreaPath:$mappedAreaPath"
+        Write-Host "........ Target Project: $targetProject"
+        Write-Host "........ Request Body: $jsonBody"
+        Write-Host "........ URI: $uri"
+    }
+}
 
 # Function to update links between work items
 function UpdateLink {
@@ -373,6 +512,7 @@ function UpdateLink {
     try {
         $response = Invoke-RestMethod -Uri $uri -Method Patch -Headers $AzureDevOpsAuthenicationHeader -ContentType "application/json-patch+json" -Body $jsonBody
         Write-Host "------ Link updated successfully between $workItemId and $linkedWorkItemId"
+        Write-Host "------ URI: $uri"
         Write-Host "------ Request Body: $jsonBody"
     } catch {
         Write-Host "......Failed to update link: $($_.Exception.Message)"
@@ -383,6 +523,7 @@ function UpdateLink {
         Write-Host "........ URI: $uri"
     }
 }
+
 
 
 # Convert hashtable to a dictionary with string keys
@@ -405,35 +546,52 @@ if ($workItems) {
         Write-Host "---- START RELINKING OLD WORKITEM $($wi.id)"
         $mappedids = $idMapping["$($wi.id)"]
         if ($mappedids) {
+
             Write-Host "------ Work Item ID: $($wi.id) has idmapping to $($mappedids)"
             # Now handle the cloning of links, adjusting them to point to the newly cloned work items
             $WorkItemTitle = $($wi.fields.'System.Title')
             if ($wi.relations) {
                 $linkcount = 0
                 foreach ($link in $wi.relations) {
-                    $linkrel = $link.rel    
+                    $linkrel = $link.rel
+                    $linkcomment = $($link.attributes.comment)
                     $linkcount++
-                    Write-Host "link # : $linkcount"
-                    $oldtargetid = WorkItemIdFromUrl -url $link.url
-                    $newtargetid = $idMapping["$($oldtargetid)"] 
-                    Write-Host "------ linkerelation:$linkrel to be transposed from $($oldtargetid) to $($newtargetid)"
-                    # Extract the source item ID from the URL
-                    if ($newtargetid) {  # This regex extracts the ID from the URL
-                        Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
-                        UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -WorkItemTitle $WorkItemTitle -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
-                    }
-                    else {
-                            Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
+                    Write-Host "------ Link comment at position $($linkcount) :$linkcomment"
+                            
+                    if (isMPMSComment($linkcomment))   {
+                        Write-Host "------ already ID mapping for original work item: $($wi.id) at position $($linkcount)"
+                    } else 
+                    {   
+                        Write-Host "link # : $linkcount"
+                        $oldtargetid = WorkItemIdFromUrl -url $link.url
+                        $newtargetid = $idMapping["$($oldtargetid)"] 
+                        Write-Host "------ linkerelation:$linkrel to be transposed from $($oldtargetid) to $($newtargetid)"
+                        # Extract the source item ID from the URL
+                        if ($newtargetid) {  # This regex extracts the ID from the URL
+                            Write-Host "------ Link changes for source and target $($mappedids) to  $($newtargetid)"
+                            UpdateLink -orgUrl $UriOrganization -targetProject $targetProjectID -headers $headers -workItemId $mappedids -WorkItemTitle $WorkItemTitle -linkedWorkItemId $newtargetid -linkedWorkItemIdOld $($oldtargetid) -linkType $link.rel -linkcount $linkcount
+                        }
+                        else {
+                                Write-Host "------ no new targetid for link $($mappedids) to  $($newtargetid)"
+                        }
                     }
                 }
             }
+            do {
+                $mpmslink = GetMPMSLink -workItem %wi
+                if ($mpmslink) {
+                    Write-Host "------ already ID mapping for original work item: $($wi.id) at position $($mpmslink.count)"
+                    $mpmslink = @()}
+                }
+            while ($mpmslink)    
+            AddSynchLink -orgUrl $UriOrganization -sourceProject $sourceProjectID -targetProject $targetProjectID -headers $headers -workItemId $wi.id -WorkItemTitle $WorkItemTitle -linkedWorkItemId $mappedids  
         } else {
             Write-Host "------ No ID mapping for original work item: $($wi.id)"
         }
     Write-Host "---- END RELINKING OLD WORKITEM $($wi.id)"
+    } else {
+        Write-Host "---- No work items to process."
     }
-} else {
-    Write-Host "---- No work items to process."
 }
 Write-Host "-- "
 Write-Host "-- END RELINKING CLONED RELATIONS"
